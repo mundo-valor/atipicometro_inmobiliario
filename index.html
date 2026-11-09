@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATIPICÓMETRO INMOBILIARIO</title>
+    <title>ATIPICÓMETRO INMOBILIARIO 2.0 — Diagnóstico estadístico</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS para XLSX / XLS / CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- PDF.js para extracción de datos tabulares desde PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
     <style>
         :root {
             --primary: #1e3a8a;
@@ -62,6 +71,63 @@
             top: 0;
             z-index: 50;
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .header-top-banner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0.5rem 1.5rem;
+            display: grid;
+            grid-template-columns: 70px 1fr 70px;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-logo-left {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .header-logo-right {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .header-logo-img {
+            height: 48px;
+            width: auto;
+            max-width: 65px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .header-center-title {
+            text-align: center;
+        }
+
+        .header-center-title h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            line-height: 1.25;
+            margin: 0;
+        }
+
+        @media (max-width: 640px) {
+            .header-top-banner {
+                grid-template-columns: 45px 1fr 45px;
+                padding: 0.35rem 0.8rem;
+            }
+            .header-logo-img {
+                height: 36px;
+            }
+            .header-center-title h2 {
+                font-size: 0.85rem;
+            }
         }
 
         .nav-container {
@@ -192,6 +258,68 @@
             max-width: 1400px;
             margin: 2rem auto;
             padding: 0 1.5rem;
+        }
+
+        /* Upload banner area */
+        .upload-area {
+            background: #ffffff;
+            border: 2px dashed #93c5fd;
+            border-radius: 14px;
+            padding: 1.5rem 1.8rem;
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #2563eb;
+            background: #fafcff;
+        }
+
+        .upload-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .upload-icon {
+            width: 52px;
+            height: 52px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+
+        .upload-text h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 3px;
+        }
+
+        .upload-text p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .upload-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .file-input-hidden {
+            display: none;
         }
 
         /* Grid Layout */
@@ -329,27 +457,6 @@
             color: var(--text-main);
         }
 
-        .btn-row-control {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            color: #0f172a;
-            font-weight: 800;
-            font-size: 0.9rem;
-            width: 32px;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .btn-row-control:hover {
-            background: #e2e8f0;
-            border-color: #94a3b8;
-        }
-
         .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -432,10 +539,6 @@
             color: #94a3b8 !important;
         }
 
-        tr.row-focused {
-            background-color: #eff6ff;
-        }
-
         .checkbox-custom {
             width: 18px;
             height: 18px;
@@ -465,7 +568,7 @@
             border: 1px solid #86efac;
         }
 
-        /* Full Stats Grid from Sheet 0 */
+        /* Full Stats Grid */
         .stats-full-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -500,7 +603,7 @@
             color: var(--text-muted);
         }
 
-        /* Charts Layout - 2 COLUMNS */
+        /* Charts Layout */
         .charts-two-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -534,7 +637,6 @@
             align-items: center;
         }
 
-        /* Boxplot Canvas Container */
         .boxplot-container {
             width: 100%;
             height: 200px;
@@ -684,7 +786,6 @@
             box-shadow: 0 6px 18px rgba(0, 112, 186, 0.45);
         }
 
-        /* Bottom scroll top button */
         .scroll-top-wrapper {
             text-align: center;
             margin: 2rem 0 1rem;
@@ -712,30 +813,6 @@
             border-color: #1e3a8a;
         }
 
-        /* Modal styling */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            background: #ffffff;
-            border-radius: 14px;
-            max-width: 600px;
-            width: 90%;
-            padding: 1.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
         footer {
             background: #ffffff;
             border-top: 1px solid var(--border-color);
@@ -746,9 +823,8 @@
             margin-top: 1.5rem;
         }
 
-        /* Print Specific Styles */
         @media print {
-            header, footer, .hero .btn-group, .modal-overlay, .btn-print-sec, .card-header-actions, .btn-paypal, .btn-print-nav, #criteria-tabs, .donation-box, .scroll-top-wrapper {
+            header, footer, .upload-area, .btn-print-sec, .card-header-actions, .btn-paypal, .btn-print-nav, #criteria-tabs, .donation-box, .scroll-top-wrapper {
                 display: none !important;
             }
             body {
@@ -774,7 +850,7 @@
             body.print-section-active .card:not(.card-print-target) {
                 display: none !important;
             }
-            body.print-section-active .hero {
+            body.print-section-active .hero, body.print-section-active .upload-area {
                 display: none !important;
             }
         }
@@ -784,6 +860,17 @@
 
     <!-- Header Navigation -->
     <header>
+        <div class="header-top-banner">
+            <div class="header-logo-left">
+                <img src="LOGO EVMC.jpg.png" alt="Escuela de Valuación Miguel Camacaro" class="header-logo-img">
+            </div>
+            <div class="header-center-title">
+                <h2>Escuela de Valuación Miguel Camacaro</h2>
+            </div>
+            <div class="header-logo-right">
+                <img src="LogoMCE.png" alt="Miguel Camacaro Ediciones" class="header-logo-img">
+            </div>
+        </div>
         <div class="nav-container">
             <a href="#" class="brand-logo">
                 <div class="logo-icon">Σ</div>
@@ -807,24 +894,44 @@
                 Saneamiento de Muestra de Mercado (Detección de Datos Atípicos)
             </div>
             <h1>Diez criterios clave para muestras comparables de hasta 30 observaciones.</h1>
-            <div class="btn-group" style="justify-content: center; margin-top: 1.2rem;">
-                <button class="btn btn-primary" onclick="openBulkInputModal()">
-                    📝 Pegar Datos Manuales
-                </button>
-                <button class="btn btn-outline" onclick="resetSample()">
-                    🔄 Limpiar Todo
-                </button>
-            </div>
         </div>
     </section>
 
     <!-- Main Content -->
     <main class="main-wrapper">
 
+        <!-- Upload Banner Area: Reemplazo integral de entrada manual por archivos -->
+        <div class="upload-area" id="section-upload">
+            <div class="upload-info">
+                <div class="upload-icon">📂</div>
+                <div class="upload-text">
+                    <h3>Cargar Muestra desde Archivo (.xlsx, .xls, .csv, .pdf)</h3>
+                    <p id="upload-status-text">Suba su base de datos. Se procesa de forma 100% local en su navegador.</p>
+                </div>
+            </div>
+            <div class="upload-actions">
+                <input type="file" id="file-uploader" class="file-input-hidden" accept=".xlsx,.xls,.csv,.txt,.pdf" onchange="handleFileUpload(event)">
+                <button class="btn btn-primary" onclick="document.getElementById('file-uploader').click()">
+                    <span>📁</span> Seleccionar Archivo
+                </button>
+                <div id="col-selector-container" style="display: none; align-items: center; gap: 8px;">
+                    <label for="col-select" style="font-size: 0.78rem; font-weight: 700; color: #1e293b;">Columna P.U.:</label>
+                    <select id="col-select" class="form-control" style="max-width: 170px;" onchange="applySelectedColumn()">
+                    </select>
+                </div>
+                <button class="btn btn-outline" onclick="loadDemoSample()">
+                    <span>📊</span> Cargar Demo
+                </button>
+                <button class="btn btn-outline" onclick="resetSample()">
+                    <span>🔄</span> Limpiar
+                </button>
+            </div>
+        </div>
+
         <!-- Upper Layout: Table (PU only with Checkbox) + Stats from Sheet 0 -->
         <div class="grid-layout">
             
-            <!-- Left Column: Input Data Table with ONLY Precio Unitario and Checkbox (Recalcular removed, real-time reactive) -->
+            <!-- Left Column: Input Data Table with ONLY Precio Unitario and Checkbox -->
             <div class="card" id="section-muestras">
                 <div class="card-header">
                     <div>
@@ -832,11 +939,6 @@
                         <div class="card-subtitle">Habilitados: <strong id="sample-count-badge" class="mono">0</strong> datos</div>
                     </div>
                     <div class="card-header-actions">
-                        <div class="btn-group">
-                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Fila:</span>
-                            <button class="btn-row-control" onclick="insertRowAtCursor()" title="Agregar fila en la posición del cursor">+</button>
-                            <button class="btn-row-control" onclick="deleteRowAtCursor()" title="Eliminar fila donde está el cursor">-</button>
-                        </div>
                         <button class="btn-print-sec" onclick="printReport('section-muestras')" title="Imprimir esta sección">🖨️</button>
                     </div>
                 </div>
@@ -856,7 +958,7 @@
                     </table>
                 </div>
 
-                <!-- Parameters for subject property (Includes 80% confidence level and NBR 14653-2 note) -->
+                <!-- Parameters for subject property -->
                 <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px dashed var(--border-color);">
                     <div class="card-title" style="font-size: 0.92rem; margin-bottom: 8px;">🏠 Parámetros del Sujeto a Valuar</div>
                     <div class="form-row">
@@ -881,7 +983,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: ALL Statistics from Sheet '0. Muestra original' (SUBTITLE REMOVED) -->
+            <!-- Right Column: ALL Statistics from Sheet '0. Muestra original' -->
             <div class="card" id="section-estadisticos">
                 <div class="card-header">
                     <div>
@@ -893,7 +995,7 @@
                     </div>
                 </div>
 
-                <!-- Full Statistics Grid (Homologated dots for thousands, comma for decimals) -->
+                <!-- Full Statistics Grid -->
                 <div class="stats-full-grid">
                     <div class="stat-card-full">
                         <div class="stat-card-label">Media (x̄)</div>
@@ -967,7 +1069,7 @@
                     </div>
                 </div>
 
-                <!-- Two Scientific Charts: 1. Histogram + Normal Curve, 2. Traditional Box-Plot -->
+                <!-- Two Scientific Charts -->
                 <div class="charts-two-grid">
                     
                     <!-- 1. Histogram with Normal Curve Overlay -->
@@ -981,7 +1083,7 @@
                         </div>
                     </div>
 
-                    <!-- 2. Traditional Box-Plot (Caja y Bigotes) -->
+                    <!-- 2. Traditional Box-Plot -->
                     <div class="chart-card-box">
                         <div class="chart-card-header">
                             <span>Diagrama de Caja y Bigotes</span>
@@ -1179,28 +1281,7 @@
 
     </main>
 
-    <!-- Modal for Bulk Data Input (Libreta de datos) -->
-    <div class="modal-overlay" id="bulkModal">
-        <div class="modal-content">
-            <div class="card-header" style="margin-bottom: 1rem; padding-bottom: 0.5rem;">
-                <div class="card-title">📝 Libreta de Carga de Datos (Precios Unitarios)</div>
-                <button class="btn btn-outline btn-sm" onclick="closeBulkInputModal()">✖</button>
-            </div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
-                Pegue hasta 30 valores numéricos de Precios Unitarios (UM/m²) separados por saltos de línea, punto y coma o espacios. (Formato español: ej. 2.023,81 o 1525,94).
-            </p>
-            <textarea id="bulk-textarea" style="width: 100%; height: 180px; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px;" placeholder="2.023,81&#10;1.525,94&#10;1.590,91&#10;2.040,00&#10;..."></textarea>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
-                <button class="btn btn-outline btn-sm" onclick="clearBulkTextarea()">Limpiar Libreta</button>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-secondary" onclick="closeBulkInputModal()">Cancelar</button>
-                    <button class="btn btn-primary" onclick="applyBulkData()">Procesar Muestra</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer (Subtitle Removed) -->
+    <!-- Footer -->
     <footer>
         <div style="max-width: 1200px; margin: 0 auto;">
             <p><strong>ATIPICÓMETRO INMOBILIARIO — Saneamiento de Muestra de Mercado (Detección de Datos Atípicos).</strong></p>
@@ -1209,14 +1290,13 @@
 
     <!-- Logic Script -->
     <script>
-        // Starts completely empty
         let currentData = [];
         let activeTab = 0;
-        let focusedRowIndex = -1;
         let histNormalChartInstance = null;
         let criteriaResults = [];
+        let importedDataset = null; // Guarda columnas importadas del archivo
 
-        // Formatting Helpers: Spanish format strictly with dot for thousands and comma for decimals (max 2 decimals)
+        // Formatting Helpers: Spanish format strictly with dot for thousands and comma for decimals
         function formatES(num, decimals) {
             if (decimals === undefined) decimals = 2;
             if (num === null || num === undefined || isNaN(num) || num === '') return "—";
@@ -1227,48 +1307,448 @@
             return intPart + (decimals > 0 ? ',' + parts[1] : '');
         }
 
-        function parseES(str) {
-            if (typeof str === 'number') return str;
-            if (!str) return 0;
-            var clean = str.toString().replace(/\./g, '').replace(',', '.').trim();
-            var val = parseFloat(clean);
-            return isNaN(val) ? 0 : val;
+        
+        function parseES(value) {
+            if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
+            if (value === null || value === undefined) return NaN;
+            var s = String(value).trim();
+            if (!s) return NaN;
+            s = s.replace(/[\s\u00A0]/g, '').replace(/[€$]/g, '').replace(/%$/, '');
+            if (!/^[-+]?\d[\d.,]*$/.test(s)) return NaN;
+
+            var comma = s.lastIndexOf(',');
+            var dot = s.lastIndexOf('.');
+            if (comma >= 0 && dot >= 0) {
+                var decimalPos = Math.max(comma, dot);
+                var integerPart = s.slice(0, decimalPos).replace(/[.,]/g, '');
+                var decimalPart = s.slice(decimalPos + 1).replace(/[.,]/g, '');
+                s = integerPart + (decimalPart ? '.' + decimalPart : '');
+            } else if (comma >= 0) {
+                var commaParts = s.split(',');
+                if (commaParts.length > 2) {
+                    var lastCommaPart = commaParts.pop();
+                    s = commaParts.join('') + '.' + lastCommaPart;
+                } else if (commaParts[1].length === 3 && commaParts[0].length > 0) {
+                    s = commaParts.join('');
+                } else {
+                    s = commaParts[0] + '.' + commaParts[1];
+                }
+            } else if (dot >= 0) {
+                var dotParts = s.split('.');
+                if (dotParts.length > 2 || (dotParts.length === 2 && dotParts[1].length === 3 && dotParts[0].length <= 3 && dotParts[0] !== '0')) {
+                    s = dotParts.join('');
+                }
+            }
+            var result = Number(s);
+            return Number.isFinite(result) ? result : NaN;
+        }
+        // Funciones numéricas: cuantiles normales y t de Student calculados dinámicamente.
+        function inverseNormal(p) {
+            if (!(p > 0 && p < 1)) return NaN;
+            var a = [-39.6968302866538,220.946098424521,-275.928510446969,138.357751867269,-30.6647980661472,2.50662827745924];
+            var b = [-54.4760987982241,161.585836858041,-155.698979859887,66.8013118877197,-13.2806815528857];
+            var c = [-0.00778489400243029,-0.322396458041136,-2.40075827716184,-2.54973253934373,4.37466414146497,2.93816398269878];
+            var d = [0.00778469570904146,0.32246712907004,2.445134137143,3.75440866190742];
+            var plow = 0.02425, phigh = 1 - plow, q, r;
+            if (p < plow) {
+                q = Math.sqrt(-2 * Math.log(p));
+                return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+                       ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+            }
+            if (p > phigh) {
+                q = Math.sqrt(-2 * Math.log(1-p));
+                return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+                        ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+            }
+            q = p - 0.5; r = q*q;
+            return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q /
+                   (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
         }
 
-        // Critical table constants
-        const CHAUVENET_TABLE = { 3: 1.383, 4: 1.534, 5: 1.645, 6: 1.732, 7: 1.803, 8: 1.863, 9: 1.915, 10: 1.96, 11: 2.0, 12: 2.037, 13: 2.07, 14: 2.1, 15: 2.128, 20: 2.241, 25: 2.326, 30: 2.394 };
-        const PEIRCE_R_TABLE = { 1: 2.385, 2: 2.103, 3: 1.927, 4: 1.797, 5: 1.694, 6: 1.608, 7: 1.534, 8: 1.469, 9: 1.411 };
-        const GRUBBS_CRITICAL_30_05 = 2.908;
-        const DIXON_CRITICAL_R22_30 = 0.441;
+        function logGamma(z) {
+            var p = [676.5203681218851,-1259.1392167224028,771.3234287776531,-176.6150291621406,12.507343278686905,-0.13857109526572012,9.984369578019572e-6,1.5056327351493116e-7];
+            if (z < 0.5) return Math.log(Math.PI) - Math.log(Math.sin(Math.PI*z)) - logGamma(1-z);
+            z -= 1;
+            var x = 0.99999999999980993;
+            for (var i=0; i<p.length; i++) x += p[i]/(z+i+1);
+            var t = z + p.length - 0.5;
+            return 0.5*Math.log(2*Math.PI) + (z+0.5)*Math.log(t) - t + Math.log(x);
+        }
 
-        // Student's t distribution critical values for bilateral test
-        const T_CRIT_MAP = {
-            "0.80": 1.311,
-            "0.90": 1.699,
-            "0.95": 2.045,
-            "0.99": 2.756
-        };
+        function betaContinuedFraction(a,b,x) {
+            var maxIter=200, eps=3e-14, fpmin=1e-300;
+            var qab=a+b, qap=a+1, qam=a-1;
+            var c=1, d=1-qab*x/qap;
+            if (Math.abs(d)<fpmin) d=fpmin;
+            d=1/d;
+            var h=d;
+            for (var m=1; m<=maxIter; m++) {
+                var m2=2*m;
+                var aa=m*(b-m)*x/((qam+m2)*(a+m2));
+                d=1+aa*d; if(Math.abs(d)<fpmin)d=fpmin;
+                c=1+aa/c; if(Math.abs(c)<fpmin)c=fpmin;
+                d=1/d; h*=d*c;
+                aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+                d=1+aa*d; if(Math.abs(d)<fpmin)d=fpmin;
+                c=1+aa/c; if(Math.abs(c)<fpmin)c=fpmin;
+                d=1/d;
+                var delta=d*c; h*=delta;
+                if(Math.abs(delta-1)<eps) break;
+            }
+            return h;
+        }
+
+        function regularizedBeta(x,a,b) {
+            if (x<=0) return 0;
+            if (x>=1) return 1;
+            var bt=Math.exp(logGamma(a+b)-logGamma(a)-logGamma(b)+a*Math.log(x)+b*Math.log(1-x));
+            if (x < (a+1)/(a+b+2)) return bt*betaContinuedFraction(a,b,x)/a;
+            return 1-bt*betaContinuedFraction(b,a,1-x)/b;
+        }
+
+        function studentTCdf(t,df) {
+            if (!(df>0)) return NaN;
+            if (t===0) return 0.5;
+            var x=df/(df+t*t);
+            var ib=regularizedBeta(x,df/2,0.5);
+            return t>0 ? 1-0.5*ib : 0.5*ib;
+        }
+
+        function studentTQuantile(p,df) {
+            if (!(p>0 && p<1) || !(df>0)) return NaN;
+            if (p===0.5) return 0;
+            var lo=-1000, hi=1000;
+            for (var i=0;i<100;i++) {
+                var mid=(lo+hi)/2;
+                if (studentTCdf(mid,df)<p) lo=mid; else hi=mid;
+            }
+            return (lo+hi)/2;
+        }
+
+        function medianOf(sortedValues) {
+            var n=sortedValues.length;
+            if (!n) return NaN;
+            return n%2 ? sortedValues[(n-1)/2] : (sortedValues[n/2-1]+sortedValues[n/2])/2;
+        }
+
+        function sampleStats(values) {
+            var n=values.length;
+            var mean=values.reduce(function(a,b){return a+b;},0)/n;
+            var variance=n>1 ? values.reduce(function(a,v){return a+Math.pow(v-mean,2);},0)/(n-1) : 0;
+            return {n:n, mean:mean, sd:Math.sqrt(variance)};
+        }
+
+        function chauvenetCritical(n) {
+            return n>=3 ? inverseNormal(1-1/(4*n)) : NaN;
+        }
+
+        function grubbsCritical(n, alpha) {
+            if (n<3) return NaN;
+            var t=studentTQuantile(1-alpha/(2*n),n-2);
+            return Math.sqrt(((n-1)/n)*(t*t/(n-2+t*t)));
+        }
+
+        function rosnerESD(values, alpha) {
+            var n=values.length, maxOut=Math.min(Math.floor(n/2)-1,10);
+            if (n<5 || maxOut<1) return {indices:[], note:"N insuficiente para ESD generalizado (se requieren al menos 5 datos)."};
+            var work=values.map(function(v,i){return {v:v, original:i};});
+            var removed=[], R=[];
+            for (var i=1;i<=maxOut;i++) {
+                var vals=work.map(function(o){return o.v;});
+                var st=sampleStats(vals);
+                if (!(st.sd>0)) break;
+                var j=0, maxZ=-1;
+                vals.forEach(function(v,k){
+                    var z=Math.abs(v-st.mean)/st.sd;
+                    if(z>maxZ){maxZ=z;j=k;}
+                });
+                R.push(maxZ);
+                removed.push(work[j].original);
+                work.splice(j,1);
+            }
+            var kmax=0;
+            for (var r=1;r<=R.length;r++) {
+                var ni=n-r+1;
+                var t=studentTQuantile(1-alpha/(2*ni),ni-2);
+                var lambda=((ni-1)*t)/Math.sqrt((ni-2+t*t)*ni);
+                if(R[r-1]>lambda) kmax=r;
+            }
+            return {indices:removed.slice(0,kmax), note:"ESD generalizado bilateral, α = "+alpha+"; máximo evaluado: "+maxOut+" observaciones."};
+        }
+        
 
         window.addEventListener('DOMContentLoaded', () => {
             renderTable();
             runCalculations();
         });
 
-        // Limpiar Todo includes clearing the modal bulk-textarea
+        // Limpiar muestra
         function resetSample() {
             currentData = [];
-            focusedRowIndex = -1;
-            var ta = document.getElementById('bulk-textarea');
-            if (ta) ta.value = '';
+            importedDataset = null;
+            document.getElementById('file-uploader').value = '';
+            document.getElementById('col-selector-container').style.display = 'none';
+            document.getElementById('upload-status-text').textContent = 'Suba su base de datos. Se procesa de forma 100% local en su navegador.';
             renderTable();
             runCalculations();
         }
 
-        function clearBulkTextarea() {
-            var ta = document.getElementById('bulk-textarea');
-            if (ta) ta.value = '';
+        // Cargar muestra de demostración (30 observaciones)
+        function loadDemoSample() {
+            var demo = [
+                383.60, 322.12, 200.00, 282.14, 226.42, 466.67, 395.48, 436.38, 291.67, 408.16,
+                225.56, 438.78, 254.67, 426.67, 254.67, 428.57, 437.50, 293.33, 200.46, 499.23,
+                876.27, 383.09, 272.48, 198.28, 672.22, 289.47, 291.67, 1584.28, 300.00, 194.03
+            ];
+            setCleanArrayData(demo, "Muestra Demo (30 datos)");
         }
 
+        
+        function setCleanArrayData(numbers, sourceName) {
+            var validNumbers = numbers.filter(function(v){ return Number.isFinite(v) && v > 0; });
+            if (validNumbers.length > 30) {
+                alert("Se encontraron " + validNumbers.length + " valores positivos. El sistema admite un máximo de 30. Se cargarán los primeros 30; revise el orden de la fuente antes de continuar.");
+            }
+            var clamped = validNumbers.slice(0, 30);
+            currentData = clamped.map(function(pu, i) {
+                return { id: i + 1, pu: pu, enabled: true };
+            });
+            document.getElementById('upload-status-text').textContent =
+                'Cargado: ' + sourceName + ' (' + clamped.length + ' observaciones).';
+            renderTable();
+            runCalculations();
+        }
+
+
+        // ==========================================
+        //  MANEJADOR UNIVERSAL DE ARCHIVOS
+        // ==========================================
+        function handleFileUpload(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            var ext = file.name.split('.').pop().toLowerCase();
+            document.getElementById('upload-status-text').textContent = 'Leyendo ' + file.name + '...';
+
+            if (ext === 'xlsx' || ext === 'xls') {
+                readExcelFile(file);
+            } else if (ext === 'csv' || ext === 'txt') {
+                readCSVFile(file);
+            } else if (ext === 'pdf') {
+                readPDFFile(file);
+            } else {
+                alert('Formato no soportado. Suba un archivo .xlsx, .xls, .csv, .txt o .pdf');
+            }
+        }
+
+        // 1. Lectura de Excel
+        function readExcelFile(file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = new Uint8Array(e.target.result);
+                    var workbook = XLSX.read(data, { type: 'array' });
+                    var firstSheetName = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[firstSheetName];
+                    var jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+                    processTabularMatrix(jsonRows, file.name);
+                } catch (err) {
+                    alert('Error al leer el archivo Excel: ' + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 2. Lectura de CSV / TXT
+        function readCSVFile(file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var text = e.target.result.replace(/^\uFEFF/, '');
+                    var rows = parseCSVText(text);
+                    processTabularMatrix(rows, file.name);
+                } catch (err) {
+                    alert('Error al procesar el archivo CSV: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSVText(t) {
+            var firstLine = t.split(/\r?\n/)[0];
+            var delim = firstLine.includes(';') ? ';' : firstLine.includes('\t') ? '\t' : ',';
+            var rows = [];
+            var curRow = [];
+            var curCell = '';
+            var inQuotes = false;
+            for (var i = 0; i < t.length; i++) {
+                var ch = t[i];
+                if (inQuotes) {
+                    if (ch === '"') {
+                        if (t[i + 1] === '"') { curCell += '"'; i++; }
+                        else { inQuotes = false; }
+                    } else {
+                        curCell += ch;
+                    }
+                } else if (ch === '"') {
+                    inQuotes = true;
+                } else if (ch === delim) {
+                    curRow.push(curCell);
+                    curCell = '';
+                } else if (ch === '\n' || ch === '\r') {
+                    if (ch === '\r' && t[i + 1] === '\n') i++;
+                    curRow.push(curCell);
+                    rows.push(curRow);
+                    curRow = [];
+                    curCell = '';
+                } else {
+                    curCell += ch;
+                }
+            }
+            if (curCell !== '' || curRow.length) {
+                curRow.push(curCell);
+                rows.push(curRow);
+            }
+            return rows;
+        }
+
+        // 3. Lectura de Tablas en PDF
+        async function readPDFFile(file) {
+            if (typeof pdfjsLib === 'undefined') {
+                alert('La librería PDF.js no está disponible.');
+                return;
+            }
+            try {
+                var arrayBuffer = await file.arrayBuffer();
+                var pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                var allNumbers = [];
+                var allLines = [];
+
+                for (var pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    var page = await pdf.getPage(pageNum);
+                    var textContent = await page.getTextContent();
+                    var items = textContent.items;
+
+                    // Agrupar por coordenada Y aproximada para reconstruir filas
+                    var lineMap = {};
+                    items.forEach(function(item) {
+                        var y = Math.round(item.transform[5] / 4) * 4;
+                        if (!lineMap[y]) lineMap[y] = [];
+                        lineMap[y].push(item.str);
+                    });
+
+                    var sortedY = Object.keys(lineMap).map(Number).sort(function(a, b) { return b - a; });
+                    sortedY.forEach(function(y) {
+                        var lineText = lineMap[y].join(' ');
+                        allLines.push(lineText);
+                        // Buscar posibles números
+                        var tokens = lineText.split(/\s+/);
+                        tokens.forEach(function(tok) {
+                            var val = parseES(tok);
+                            if (val > 0 && !isNaN(val)) {
+                                allNumbers.push(val);
+                            }
+                        });
+                    });
+                }
+
+                if (allNumbers.length === 0) {
+                    alert('No se detectaron valores numéricos en las tablas del PDF.');
+                    return;
+                }
+
+                if (allNumbers.length > 30) {
+                    alert('Se detectaron ' + allNumbers.length + ' valores en el PDF. Se cargan los primeros 30 según el límite normativo de la herramienta.');
+                }
+
+                setCleanArrayData(allNumbers, file.name + ' (PDF)');
+
+            } catch (err) {
+                alert('Error al leer el PDF: ' + err.message);
+            }
+        }
+
+        // Procesamiento de matrices tabulares (Excel / CSV)
+        function processTabularMatrix(matrix, fileName) {
+            matrix = matrix.filter(function(r) { return r && r.some(function(c) { return String(c).trim() !== ''; }); });
+            if (matrix.length < 2) {
+                alert('El archivo no contiene suficientes filas.');
+                return;
+            }
+
+            var headers = matrix[0].map(function(h, idx) {
+                var s = String(h).trim();
+                return s ? s : 'Columna ' + (idx + 1);
+            });
+
+            var numCols = headers.length;
+            var columnsData = [];
+            for (var j = 0; j < numCols; j++) {
+                var colVals = [];
+                for (var i = 1; i < matrix.length; i++) {
+                    var cell = matrix[i][j];
+                    var parsed = parseES(cell);
+                    if (parsed > 0) colVals.push(parsed);
+                }
+                columnsData.push({
+                    index: j,
+                    name: headers[j],
+                    values: colVals
+                });
+            }
+
+            // Filtrar columnas que tengan datos numéricos
+            var validCols = columnsData.filter(function(c) { return c.values.length > 0; });
+            if (validCols.length === 0) {
+                alert('No se encontraron columnas con valores numéricos positivos en el archivo.');
+                return;
+            }
+
+            importedDataset = { fileName: fileName, columns: validCols };
+
+            // Configurar selector de columnas
+            var colSelect = document.getElementById('col-select');
+            colSelect.innerHTML = '';
+            validCols.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.index;
+                opt.textContent = c.name + ' (' + c.values.length + ' num)';
+                colSelect.appendChild(opt);
+            });
+
+            // Sugerencia inteligente de columna de Precio Unitario
+            var suggestedIdx = validCols[0].index;
+            var match = validCols.find(function(c) {
+                return /precio|pu|unit|valor|m2|price/i.test(c.name);
+            });
+            if (match) suggestedIdx = match.index;
+            colSelect.value = suggestedIdx;
+
+            if (validCols.length > 1) {
+                document.getElementById('col-selector-container').style.display = 'inline-flex';
+            } else {
+                document.getElementById('col-selector-container').style.display = 'none';
+            }
+
+            applySelectedColumn();
+        }
+
+        function applySelectedColumn() {
+            if (!importedDataset) return;
+            var colIdx = parseInt(document.getElementById('col-select').value);
+            var col = importedDataset.columns.find(function(c) { return c.index === colIdx; });
+            if (!col) return;
+
+            if (col.values.length > 30) {
+                alert('La columna seleccionada contiene ' + col.values.length + ' observaciones. Se toman las primeras 30 (N ≤ 30).');
+            }
+
+            setCleanArrayData(col.values, importedDataset.fileName + ' [' + col.name + ']');
+        }
+
+        // ==========================================
+        //  RENDERIZADO Y TABLA DE MUESTRA
+        // ==========================================
         function renderTable() {
             var tbody = document.getElementById('table-body');
             tbody.innerHTML = '';
@@ -1277,7 +1757,7 @@
             document.getElementById('sample-count-badge').textContent = activeCount;
 
             if (currentData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Sin datos cargados. Utilice <strong>"Fila: +"</strong> o <strong>"📝 Pegar Datos Manuales"</strong>.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 1.8rem;">Sin datos cargados. Suba un archivo <strong>.xlsx, .csv o .pdf</strong> o pulse <strong>"📊 Cargar Demo"</strong>.</td></tr>';
                 return;
             }
 
@@ -1285,18 +1765,11 @@
                 var tr = document.createElement('tr');
                 tr.id = 'row-' + idx;
                 if (!row.enabled) tr.classList.add('row-disabled');
-                if (focusedRowIndex === idx) tr.classList.add('row-focused');
 
                 tr.innerHTML = 
                     '<td class="mono" style="font-weight: 700; color: var(--text-muted); text-align: center;">' + (idx + 1) + '</td>' +
-                    '<td>' +
-                        '<input type="text" ' +
-                               'class="form-control mono" ' +
-                               'style="padding: 4px 8px; font-size: 0.82rem; text-align: right; font-weight: 700; color: #1e3a8a;" ' +
-                               'value="' + formatES(row.pu, 2) + '" ' +
-                               'onfocus="setFocusedRow(' + idx + ')" ' +
-                               'oninput="updateRowInstant(' + idx + ', this.value)" ' +
-                               'onchange="updateRowFormatted(' + idx + ', this)">' +
+                    '<td style="text-align: right;">' +
+                        '<span class="mono" style="font-weight: 700; color: #1e3a8a; font-size: 0.86rem;">' + formatES(row.pu, 2) + '</span>' +
                     '</td>' +
                     '<td style="text-align: center;">' +
                         '<input type="checkbox" ' +
@@ -1309,49 +1782,6 @@
             });
         }
 
-        function setFocusedRow(idx) {
-            focusedRowIndex = idx;
-            document.querySelectorAll('#table-body tr').forEach(function(tr, i) {
-                tr.classList.toggle('row-focused', i === idx);
-            });
-        }
-
-        // Insert row at cursor / focused row
-        function insertRowAtCursor() {
-            if (currentData.length >= 30) {
-                alert("El instrumento de cálculo está calibrado para un tamaño máximo de muestra N ≤ 30.");
-                return;
-            }
-            var insertPos = (focusedRowIndex >= 0 && focusedRowIndex < currentData.length) ? focusedRowIndex + 1 : currentData.length;
-            var newId = currentData.length + 1;
-            
-            currentData.splice(insertPos, 0, {
-                id: newId,
-                pu: 0.00,
-                enabled: true
-            });
-            focusedRowIndex = insertPos;
-            renderTable();
-            runCalculations();
-
-            setTimeout(function() {
-                var inputs = document.querySelectorAll('#table-body input[type="text"]');
-                if (inputs[insertPos]) inputs[insertPos].focus();
-            }, 50);
-        }
-
-        // Delete row at cursor / focused row
-        function deleteRowAtCursor() {
-            if (currentData.length === 0) return;
-            var deletePos = (focusedRowIndex >= 0 && focusedRowIndex < currentData.length) ? focusedRowIndex : currentData.length - 1;
-            currentData.splice(deletePos, 1);
-            if (focusedRowIndex >= currentData.length) {
-                focusedRowIndex = currentData.length - 1;
-            }
-            renderTable();
-            runCalculations();
-        }
-
         function toggleRowEnabled(idx, isChecked) {
             currentData[idx].enabled = isChecked;
             var rowEl = document.getElementById('row-' + idx);
@@ -1361,20 +1791,6 @@
             runCalculations();
         }
 
-        // Real-time instant updating on keystroke
-        function updateRowInstant(idx, val) {
-            currentData[idx].pu = parseES(val);
-            runCalculations();
-        }
-
-        // Format properly on blur/change
-        function updateRowFormatted(idx, inputEl) {
-            currentData[idx].pu = parseES(inputEl.value);
-            inputEl.value = formatES(currentData[idx].pu, 2);
-            runCalculations();
-        }
-
-        // Print function for sections or full page
         function printReport(targetSectionId) {
             document.body.classList.remove('print-section-active');
             document.querySelectorAll('.card-print-target').forEach(function(el) { el.classList.remove('card-print-target'); });
@@ -1393,263 +1809,163 @@
             }, 1000);
         }
 
-        // Statistical Engine (Real-time simultaneous processing)
+        // ==========================================
+        //  MOTOR ESTADÍSTICO Y DE SANEAMIENTO
+        // ==========================================
+        
         function runCalculations() {
-            var validRows = currentData.filter(function(d) { return d.enabled && !isNaN(d.pu) && d.pu > 0; });
-            var puValues = validRows.map(function(d) { return d.pu; });
-            var n = puValues.length;
+            var validRows=currentData.filter(function(d){return d.enabled && Number.isFinite(d.pu) && d.pu>0;});
+            var puValues=validRows.map(function(d){return d.pu;});
+            var n=puValues.length;
+            document.getElementById('sample-count-badge').textContent=n;
+            document.getElementById('stat-count').textContent=n;
 
-            document.getElementById('sample-count-badge').textContent = n;
-            document.getElementById('stat-count').textContent = n;
-
-            if (n < 3) {
-                document.getElementById('stat-mean').textContent = "—";
-                document.getElementById('stat-stderr').textContent = "—";
-                document.getElementById('stat-median').textContent = "—";
-                document.getElementById('stat-mode').textContent = "—";
-                document.getElementById('stat-sd').textContent = "—";
-                document.getElementById('stat-var').textContent = "—";
-                document.getElementById('stat-cv').textContent = "—";
-                document.getElementById('stat-kurt').textContent = "—";
-                document.getElementById('stat-kurt-label').textContent = "—";
-                document.getElementById('stat-skew').textContent = "—";
-                document.getElementById('stat-skew-label').textContent = "—";
-                document.getElementById('stat-range').textContent = "—";
-                document.getElementById('stat-min').textContent = "—";
-                document.getElementById('stat-max').textContent = "—";
-                document.getElementById('stat-sum').textContent = "—";
-
-                document.getElementById('cv-badge').className = 'tag-valid';
-                document.getElementById('cv-badge').textContent = 'CV: —';
-
-                document.getElementById('matrix-body').innerHTML = '';
-                document.getElementById('avaluo-table-body').innerHTML = '';
-                document.getElementById('crit-formula-box').textContent = "Límites: [ — ; — ] UM/m²";
-                document.getElementById('crit-outliers-count').textContent = "0";
-                document.getElementById('crit-clean-mean').textContent = "—";
-                document.getElementById('crit-clean-cv').textContent = "—";
-                document.getElementById('crit-outliers-list').innerHTML = '';
-
-                document.getElementById('val-central').textContent = '— UM';
-                document.getElementById('val-central-pu').textContent = '—';
-                document.getElementById('val-ci').textContent = '[— - —] UM';
-                document.getElementById('val-arbitrio').textContent = '[— - —] UM';
-                document.getElementById('val-admisible').textContent = '[— - —] UM';
-
+            if(n<3) {
+                ['stat-mean','stat-stderr','stat-median','stat-mode','stat-sd','stat-var','stat-cv','stat-kurt','stat-kurt-label','stat-skew','stat-skew-label','stat-range','stat-min','stat-max','stat-sum'].forEach(function(id){
+                    document.getElementById(id).textContent='—';
+                });
+                document.getElementById('cv-badge').className='tag-valid';
+                document.getElementById('cv-badge').textContent='CV: —';
+                document.getElementById('matrix-body').innerHTML='';
+                document.getElementById('avaluo-table-body').innerHTML='';
+                document.getElementById('crit-formula-box').textContent='Se requieren al menos 3 observaciones válidas.';
+                document.getElementById('crit-outliers-count').textContent='0';
+                document.getElementById('crit-clean-mean').textContent='—';
+                document.getElementById('crit-clean-cv').textContent='—';
+                document.getElementById('crit-outliers-list').textContent='';
+                document.getElementById('val-central').textContent='— UM';
+                document.getElementById('val-central-pu').textContent='—';
+                document.getElementById('val-ci').textContent='—';
+                document.getElementById('val-arbitrio').textContent='—';
+                document.getElementById('val-admisible').textContent='—';
+                criteriaResults=[];
                 clearCharts();
                 return;
             }
 
-            var sum = puValues.reduce(function(a, b) { return a + b; }, 0);
-            var mean = sum / n;
-            var sorted = puValues.slice().sort(function(a, b) { return a - b; });
-            
-            var median = n % 2 === 0 ? (sorted[n/2 - 1] + sorted[n/2]) / 2 : sorted[Math.floor(n/2)];
+            var sorted=puValues.slice().sort(function(a,b){return a-b;});
+            var st=sampleStats(puValues), mean=st.mean, sd=st.sd;
+            var median=medianOf(sorted), sum=puValues.reduce(function(a,b){return a+b;},0);
+            var variance=sd*sd, stderr=sd/Math.sqrt(n), cv=mean!==0?sd/mean*100:NaN;
+            var m2=puValues.reduce(function(a,v){return a+Math.pow(v-mean,2);},0)/n;
+            var m3=puValues.reduce(function(a,v){return a+Math.pow(v-mean,3);},0)/n;
+            var m4=puValues.reduce(function(a,v){return a+Math.pow(v-mean,4);},0)/n;
+            var skewness=m2>0?m3/Math.pow(m2,1.5):0;
+            var kurtosis=m2>0?m4/Math.pow(m2,2):0;
+            var minVal=sorted[0], maxVal=sorted[n-1], rangeVal=maxVal-minVal;
+            var meanDev=puValues.reduce(function(a,v){return a+Math.abs(v-mean);},0)/n;
+            var q1=getQuantile(sorted,0.25), q3=getQuantile(sorted,0.75), iqr=q3-q1;
+            var medianDiffs=puValues.map(function(v){return Math.abs(v-median);}).sort(function(a,b){return a-b;});
+            var mad=medianOf(medianDiffs);
 
-            var countsMap = {};
-            var maxFreq = 0;
-            var modeVal = sorted[0];
-            puValues.forEach(function(v) {
-                var key = v.toFixed(2);
-                countsMap[key] = (countsMap[key] || 0) + 1;
-                if (countsMap[key] > maxFreq) {
-                    maxFreq = countsMap[key];
-                    modeVal = v;
-                }
-            });
+            document.getElementById('stat-mean').textContent=formatES(mean,2);
+            document.getElementById('stat-stderr').textContent=formatES(stderr,2);
+            document.getElementById('stat-median').textContent=formatES(median,2);
+            var freq={}; puValues.forEach(function(v){var k=v.toFixed(2);freq[k]=(freq[k]||0)+1;});
+            var maxFreq=Math.max.apply(null,Object.values(freq));
+            var modes=Object.keys(freq).filter(function(k){return freq[k]===maxFreq;});
+            document.getElementById('stat-mode').textContent=maxFreq>1?modes.join(' / '):'Sin moda';
+            document.getElementById('stat-sd').textContent=formatES(sd,2);
+            document.getElementById('stat-var').textContent=formatES(variance,2);
+            document.getElementById('stat-cv').textContent=Number.isFinite(cv)?formatES(cv,2)+'%':'—';
+            document.getElementById('stat-kurt').textContent=formatES(kurtosis,2);
+            document.getElementById('stat-kurt-label').textContent=kurtosis>3?'Leptocúrtica':(kurtosis<3?'Platicúrtica':'Mesocúrtica');
+            document.getElementById('stat-skew').textContent=formatES(skewness,2);
+            document.getElementById('stat-skew-label').textContent=skewness>0?'Asimetría positiva':(skewness<0?'Asimetría negativa':'Simétrica');
+            document.getElementById('stat-range').textContent=formatES(rangeVal,2);
+            document.getElementById('stat-min').textContent=formatES(minVal,2);
+            document.getElementById('stat-max').textContent=formatES(maxVal,2);
+            document.getElementById('stat-sum').textContent=formatES(sum,2);
 
-            var variance = puValues.reduce(function(acc, val) { return acc + Math.pow(val - mean, 2); }, 0) / (n - 1);
-            var sd = Math.sqrt(variance);
-            var stderr = sd / Math.sqrt(n);
-            var cv = (sd / mean) * 100;
+            var cvBadge=document.getElementById('cv-badge');
+            cvBadge.className=cv<=15?'tag-valid':'tag-outlier';
+            cvBadge.textContent='CV: '+formatES(cv,2)+'% ('+(cv<=15?'dispersión baja':(cv<=30?'moderada':'alta'))+')';
 
-            var m2 = puValues.reduce(function(acc, val) { return acc + Math.pow(val - mean, 2); }, 0) / n;
-            var m3 = puValues.reduce(function(acc, val) { return acc + Math.pow(val - mean, 3); }, 0) / n;
-            var m4 = puValues.reduce(function(acc, val) { return acc + Math.pow(val - mean, 4); }, 0) / n;
-            var skewness = m3 / Math.pow(m2, 1.5);
-            var kurtosis = m4 / Math.pow(m2, 2);
-
-            var minVal = sorted[0];
-            var maxVal = sorted[n - 1];
-            var rangeVal = maxVal - minVal;
-            var meanDev = puValues.reduce(function(acc, val) { return acc + Math.abs(val - mean); }, 0) / n;
-
-            var q1 = getQuantile(sorted, 0.25);
-            var q3 = getQuantile(sorted, 0.75);
-            var iqr = q3 - q1;
-
-            var medianDiffs = sorted.map(function(v) { return Math.abs(v - median); }).sort(function(a, b) { return a - b; });
-            var mad = medianDiffs[Math.floor(n/2)];
-
-            document.getElementById('stat-mean').textContent = formatES(mean, 2);
-            document.getElementById('stat-stderr').textContent = formatES(stderr, 2);
-            document.getElementById('stat-median').textContent = formatES(median, 2);
-            document.getElementById('stat-mode').textContent = formatES(modeVal, 2);
-            document.getElementById('stat-sd').textContent = formatES(sd, 2);
-            document.getElementById('stat-var').textContent = formatES(variance, 2);
-            document.getElementById('stat-cv').textContent = formatES(cv, 2) + '%';
-            document.getElementById('stat-kurt').textContent = formatES(kurtosis, 2);
-            document.getElementById('stat-kurt-label').textContent = kurtosis > 3 ? 'Leptocúrtica' : (kurtosis < 3 ? 'Platicúrtica' : 'Mesocúrtica');
-            document.getElementById('stat-skew').textContent = formatES(skewness, 2);
-            document.getElementById('stat-skew-label').textContent = skewness > 0 ? 'Asimetría Positiva' : (skewness < 0 ? 'Asimetría Negativa' : 'Simétrica');
-            document.getElementById('stat-range').textContent = formatES(rangeVal, 2);
-            document.getElementById('stat-min').textContent = formatES(minVal, 2);
-            document.getElementById('stat-max').textContent = formatES(maxVal, 2);
-            document.getElementById('stat-sum').textContent = formatES(sum, 2);
-            document.getElementById('stat-count').textContent = n;
-
-            var cvBadge = document.getElementById('cv-badge');
-            if (cv <= 15) {
-                cvBadge.className = 'tag-valid';
-                cvBadge.textContent = 'CV: ' + formatES(cv, 2) + '% (Homogéneo)';
-            } else if (cv <= 30) {
-                cvBadge.className = 'tag-outlier';
-                cvBadge.style.background = '#fef3c7';
-                cvBadge.style.color = '#b45309';
-                cvBadge.textContent = 'CV: ' + formatES(cv, 2) + '% (Moderado)';
-            } else {
-                cvBadge.className = 'tag-outlier';
-                cvBadge.textContent = 'CV: ' + formatES(cv, 2) + '% (Crítico > 30%)';
+            criteriaResults=[];
+            function addCriterion(name,desc,formula,fn,options) {
+                options=options||{};
+                criteriaResults.push(evaluateCriteria(name,desc,formula,options.applicable===false?function(){return false;}:fn,options));
             }
 
-            // 10 Criteria Evaluations
-            criteriaResults = [];
+            // 1. Regla descriptiva ±2s (no es una prueba formal de significación).
+            var sdLo=mean-2*sd, sdHi=mean+2*sd;
+            addCriterion('1. Desviación estándar ±2s','Regla exploratoria de cribado. Su resultado depende de la media y desviación estándar y es sensible a asimetría. No constituye por sí sola una prueba formal.','Límites: ['+formatES(sdLo,2)+' ; '+formatES(sdHi,2)+'] UM/m²',function(v){return sd>0&&(v<sdLo||v>sdHi);});
 
-            // 1. Desviación Estándar
-            var sd_lower = mean - 2 * sd;
-            var sd_upper = mean + 2 * sd;
-            criteriaResults.push(evaluateCriteria("1. Desviación Estándar", 
-                "Filtro paramétrico clásico alrededor de la media muestral a ±2σ.",
-                "Límites: [ " + formatES(sd_lower, 2) + " ; " + formatES(sd_upper, 2) + " ] UM/m²",
-                function(val) { return val < sd_lower || val > sd_upper; }
-            ));
+            // 2. Desviación media absoluta: indicador descriptivo, no test calibrado.
+            addCriterion('2. Desviación media absoluta','Indicador descriptivo exploratorio; no tiene un nivel de significación estadística calibrado. Debe interpretarse solo como señal de revisión.','|x − x̄| > desviación media = '+formatES(meanDev,2)+' UM/m²',function(v){return Math.abs(v-mean)>meanDev;});
 
-            // 2. Desviación Media
-            criteriaResults.push(evaluateCriteria("2. Desviación Media", 
-                "Filtro de dispersión absoluta. Clasifica como atípico todo valor cuya desviación supere la desviación media promedio.",
-                "Umbral Absoluto: |x - x̄| ≤ " + formatES(meanDev, 2) + " UM/m²",
-                function(val) { return Math.abs(val - mean) > meanDev; }
-            ));
+            // 3. Peirce: no se inventa un factor R fijo; requiere especificar N, número de sospechosos y formulación.
+            addCriterion('3. Criterio de Peirce','No se automatiza en esta versión: el factor depende del tamaño muestral y del número de observaciones sospechosas que se pretende rechazar. No se aplica un factor fijo.','NO CALCULADO. Requiere parametrización específica del problema de Peirce.',function(){return false;},{applicable:false});
 
-            // 3. Criterio de Peirce
-            var peirce_R = PEIRCE_R_TABLE[1] || 2.385;
-            var peirce_limit = peirce_R * sd;
-            criteriaResults.push(evaluateCriteria("3. Criterio de Peirce", 
-                "Criterio astronómico y metrológico riguroso de eliminación sucesiva de observaciones dudosas.",
-                "Límite de desviación: |x - x̄| > " + formatES(peirce_limit, 2) + " (Factor R = " + formatES(peirce_R, 3) + ")",
-                function(val) { return Math.abs(val - mean) > peirce_limit; }
-            ));
+            // 4. Chauvenet: umbral normal exacto para P(|Z| ≥ z) = 1/(2N), aplicación de una sola pasada.
+            var chZ=chauvenetCritical(n);
+            addCriterion('4. Criterio de Chauvenet','Aplicación de una sola pasada sobre la muestra activa. Umbral obtenido de la distribución normal estándar; no se repite automáticamente después de retirar casos. Supone una población aproximadamente normal.','P(|Z| ≥ z) = 1/(2N); z crítico = '+formatES(chZ,4),function(v){return sd>0&&Math.abs(v-mean)/sd>chZ;});
 
-            // 4. Criterio de Chauvenet
-            var chauv_v = CHAUVENET_TABLE[Math.min(n, 30)] || 2.394;
-            criteriaResults.push(evaluateCriteria("4. Criterio de Chauvenet", 
-                "Rechaza datos con probabilidad de ocurrencia menor a 1/(2n) según la razón de desviación normalizada.",
-                "Razón crítica V_Ch: |x - x̄| / s > " + formatES(chauv_v, 3),
-                function(val) { return (Math.abs(val - mean) / sd) > chauv_v; }
-            ));
+            // 5. Dixon r22: se desactiva hasta disponer de tabla crítica verificada para cada N y variante.
+            addCriterion('5. Criterio de Dixon','No se automatiza: el valor crítico debe corresponder exactamente a la variante de Dixon, tamaño muestral y nivel α. Se elimina el uso de una constante única para todos los N.','NO CALCULADO. Seleccione tabla crítica validada para la variante y N.',function(){return false;},{applicable:false});
 
-            // 5. Criterio de Dixon
-            var dixon_q = DIXON_CRITICAL_R22_30;
-            criteriaResults.push(evaluateCriteria("5. Criterio de Dixon", 
-                "Prueba de razón de rangos extremos r22 para muestras ordenadas de tamaño 14 ≤ N ≤ 30.",
-                "Razón r22 crítica = " + formatES(dixon_q, 3) + " (Confianza 95%)",
-                function(val) {
-                    var sorted_idx = sorted.indexOf(val);
-                    if (sorted_idx === n - 1) {
-                        var r22_high = (sorted[n-1] - sorted[n-3]) / (sorted[n-1] - sorted[2]);
-                        return r22_high > dixon_q;
-                    }
-                    if (sorted_idx === 0) {
-                        var r22_low = (sorted[2] - sorted[0]) / (sorted[n-3] - sorted[0]);
-                        return r22_low > dixon_q;
-                    }
-                    return false;
-                }
-            ));
+            // 6. Rosner Generalized ESD.
+            var ros=rosnerESD(puValues,0.05);
+            addCriterion('6. Rosner (Generalized ESD)',ros.note+' Supuesto de normalidad aproximada; α = 0,05.','Índices identificados por ESD: '+(ros.indices.length?ros.indices.map(function(i){return i+1;}).join(', '):'ninguno'),function(v,idx){return ros.indices.indexOf(puValues.indexOf(v))>=0;},{indexOutliers:ros.indices});
 
-            // 6. Criterio de Rosner
-            var rosner_crit = 2.91;
-            criteriaResults.push(evaluateCriteria("6. Criterio de Rosner", 
-                "Prueba de Desviaciones Extremas Estudentizadas (ESD) para detectar atípicos múltiples sin enmascaramiento.",
-                "Estadístico R_Rosner > " + formatES(rosner_crit, 2),
-                function(val) { return (Math.abs(val - mean) / sd) > rosner_crit || (val > 1.5 * mean && Math.abs(val - mean)/sd > 1.0); }
-            ));
+            // 7. Grubbs: máximo desvío, bilateral, α=0,05.
+            var gCrit=grubbsCritical(n,0.05);
+            var gMax=sd>0?Math.max.apply(null,puValues.map(function(v){return Math.abs(v-mean)/sd;})):0;
+            var gFlag=gMax>gCrit;
+            var gIndex=-1;
+            if(gFlag){gIndex=puValues.findIndex(function(v){return Math.abs(v-mean)/sd===gMax;});}
+            addCriterion('7. Grubbs','Prueba bilateral para un único valor atípico, bajo normalidad aproximada; α = 0,05. No detecta de forma fiable varios atípicos simultáneos.','G observado = '+formatES(gMax,4)+'; G crítico = '+formatES(gCrit,4),function(v,idx){return gFlag&&idx===validRows[gIndex] && Math.abs(v-mean)/sd===gMax;});
 
-            // 7. Criterio de Grubbs
-            var grubbs_crit = GRUBBS_CRITICAL_30_05;
-            criteriaResults.push(evaluateCriteria("7. Criterio de Grubbs", 
-                "Prueba de máxima desviación estudentizada bilateral bajo distribución t-Student.",
-                "G_crítico = " + formatES(grubbs_crit, 3) + " (α = 0,05)",
-                function(val) { return (Math.abs(val - mean) / sd) > grubbs_crit; }
-            ));
+            // 8. Tukey.
+            var tukeyLo=q1-1.5*iqr, tukeyHi=q3+1.5*iqr;
+            addCriterion('8. Tukey (1,5 × IQR)','Regla robusta exploratoria de cercas intercuartílicas. Se usa interpolación lineal tipo 7 para los cuartiles. No equivale a una prueba de significación.','Cercas: ['+formatES(tukeyLo,2)+' ; '+formatES(tukeyHi,2)+'] UM/m²; IQR = '+formatES(iqr,2),function(v){return v<tukeyLo||v>tukeyHi;});
 
-            // 8. Criterio de Tukey (Boxplot IQR)
-            var tukey_lower = q1 - 1.5 * iqr;
-            var tukey_upper = q3 + 1.5 * iqr;
-            criteriaResults.push(evaluateCriteria("8. Criterio de Tukey", 
-                "Método no paramétrico robusto basado en el rango intercuartílico (IQR).",
-                "Límites: [ " + formatES(tukey_lower, 2) + " ; " + formatES(tukey_upper, 2) + " ] (IQR = " + formatES(iqr, 2) + ")",
-                function(val) { return val < tukey_lower || val > tukey_upper; }
-            ));
+            // 9. Z score: regla exploratoria.
+            addCriterion('9. Puntaje Z (2,5)','Regla exploratoria basada en puntuación Z; sensible a valores extremos y asimetría. No debe interpretarse como prueba formal con α definido.','|Z| > 2,5; s = '+formatES(sd,2),function(v){return sd>0&&Math.abs((v-mean)/sd)>2.5;});
 
-            // 9. Criterio del Puntaje Z
-            var z_thresh = 2.5;
-            criteriaResults.push(evaluateCriteria("9. Puntaje Z", 
-                "Tipificación estándar de observaciones. Descarta valores a más de 2,5 desviaciones de la media.",
-                "Condición: |Z| = |(x - x̄) / s| > " + formatES(z_thresh, 1),
-                function(val) { return Math.abs((val - mean) / sd) > z_thresh; }
-            ));
-
-            // 10. Criterio de Hampel (MAD)
-            var hampel_lower = median - 3 * (1.4826 * mad);
-            var hampel_upper = median + 3 * (1.4826 * mad);
-            criteriaResults.push(evaluateCriteria("10. Criterio de Hampel", 
-                "Identificador robusto basado en la mediana de las desviaciones absolutas (MAD).",
-                "Límites: [ " + formatES(hampel_lower, 2) + " ; " + formatES(hampel_upper, 2) + " ] (MAD = " + formatES(mad, 2) + ")",
-                function(val) { return val < hampel_lower || val > hampel_upper; }
-            ));
+            // 10. Hampel: MAD mediana correcta, MAD escalada; MAD=0 no genera falsos positivos.
+            var madScale=1.4826*mad, hLo=median-3*madScale, hHi=median+3*madScale;
+            addCriterion('10. Hampel (MAD)','Filtro robusto basado en la mediana y MAD. MAD calculada como mediana de las desviaciones absolutas (promedio de los dos centrales cuando N es par). Si MAD=0, el criterio no marca casos automáticamente.','Mediana ± 3 × 1,4826 × MAD; MAD = '+formatES(mad,4),function(v){return madScale>0&&(v<hLo||v>hHi);});
 
             renderMatrixSummary();
             renderCriteriaTabDetail();
-            renderHistogram(sorted, mean, sd);
-            drawTraditionalBoxPlot(sorted, q1, median, q3, tukey_lower, tukey_upper, mean);
+            renderHistogram(sorted,mean,sd);
+            drawTraditionalBoxPlot(sorted,q1,median,q3,tukeyLo,tukeyHi,mean);
             renderAppraisalTable();
         }
 
-        function evaluateCriteria(name, desc, formula, isOutlierFn) {
-            var outliers = [];
-            var cleanData = [];
 
-            currentData.forEach(function(row, idx) {
-                if (!row.enabled) return;
-                var flagged = isOutlierFn(row.pu, idx, currentData);
-                if (flagged) {
-                    outliers.push({ idx: idx, row: row });
-                } else {
-                    cleanData.push(row.pu);
+        
+        function evaluateCriteria(name, desc, formula, isOutlierFn, options) {
+            options=options||{};
+            var outliers=[], cleanData=[];
+            currentData.forEach(function(row,idx){
+                if(!row.enabled || !Number.isFinite(row.pu) || row.pu<=0) return;
+                var flagged=false;
+                if(options.applicable!==false) {
+                    if(Array.isArray(options.indexOutliers)) {
+                        var activePosition=currentData.filter(function(r,k){return r.enabled&&Number.isFinite(r.pu)&&r.pu>0&&k<idx;}).length;
+                        flagged=options.indexOutliers.indexOf(activePosition)>=0;
+                    } else {
+                        flagged=!!isOutlierFn(row.pu,idx,currentData);
+                    }
                 }
+                if(flagged) outliers.push({idx:idx,row:row}); else cleanData.push(row.pu);
             });
-
-            var cleanN = cleanData.length;
-            var cleanMean = cleanN > 0 ? cleanData.reduce(function(a,b){return a+b;},0)/cleanN : 0;
-            var cleanVar = cleanN > 1 ? cleanData.reduce(function(acc, v) { return acc + Math.pow(v - cleanMean, 2); }, 0) / (cleanN - 1) : 0;
-            var cleanSd = Math.sqrt(cleanVar);
-            var cleanCv = cleanMean > 0 ? (cleanSd / cleanMean) * 100 : 0;
-
+            var cleanN=cleanData.length;
+            var cleanMean=cleanN?cleanData.reduce(function(a,b){return a+b;},0)/cleanN:NaN;
+            var cleanVar=cleanN>1?cleanData.reduce(function(a,v){return a+Math.pow(v-cleanMean,2);},0)/(cleanN-1):NaN;
+            var cleanSd=Math.sqrt(cleanVar);
             return {
-                name: name,
-                desc: desc,
-                formula: formula,
-                outliers: outliers,
-                cleanData: cleanData,
-                cleanMean: cleanMean,
-                cleanSd: cleanSd,
-                cleanCv: cleanCv,
-                cleanMin: cleanN > 0 ? Math.min.apply(null, cleanData) : 0,
-                cleanMax: cleanN > 0 ? Math.max.apply(null, cleanData) : 0,
-                isOutlierFn: isOutlierFn
+                name:name,desc:desc,formula:formula,outliers:outliers,cleanData:cleanData,
+                cleanMean:cleanMean,cleanSd:cleanSd,
+                cleanCv:cleanMean>0&&Number.isFinite(cleanSd)?cleanSd/cleanMean*100:NaN,
+                cleanMin:cleanN?Math.min.apply(null,cleanData):NaN,
+                cleanMax:cleanN?Math.max.apply(null,cleanData):NaN,
+                applicable:options.applicable!==false
             };
         }
+
 
         function getQuantile(sortedArr, q) {
             var pos = (sortedArr.length - 1) * q;
@@ -1670,31 +1986,39 @@
             renderCriteriaTabDetail();
         }
 
+        
         function renderCriteriaTabDetail() {
-            if (!criteriaResults[activeTab]) return;
-            var crit = criteriaResults[activeTab];
-
-            document.getElementById('crit-name').textContent = crit.name;
-            document.getElementById('crit-desc').textContent = crit.desc;
-            document.getElementById('crit-formula-box').textContent = crit.formula;
-            document.getElementById('crit-outliers-count').textContent = crit.outliers.length;
-            document.getElementById('crit-clean-mean').textContent = formatES(crit.cleanMean, 2) + " UM/m²";
-            document.getElementById('crit-clean-cv').textContent = formatES(crit.cleanCv, 2) + "%";
-
-            var listCont = document.getElementById('crit-outliers-list');
-            listCont.innerHTML = '';
-
-            if (crit.outliers.length === 0) {
-                listCont.innerHTML = '<div style="font-size: 0.78rem; color: var(--success); font-weight: 600;">✓ Ningún atípico detectado con este criterio.</div>';
+            if(!criteriaResults[activeTab]) return;
+            var crit=criteriaResults[activeTab];
+            document.getElementById('crit-name').textContent=crit.name;
+            document.getElementById('crit-desc').textContent=crit.desc;
+            document.getElementById('crit-formula-box').textContent=crit.formula;
+            document.getElementById('crit-outliers-count').textContent=crit.applicable?crit.outliers.length:'N/A';
+            document.getElementById('crit-clean-mean').textContent=Number.isFinite(crit.cleanMean)?formatES(crit.cleanMean,2)+' UM/m²':'—';
+            document.getElementById('crit-clean-cv').textContent=Number.isFinite(crit.cleanCv)?formatES(crit.cleanCv,2)+'%':'—';
+            var listCont=document.getElementById('crit-outliers-list');
+            listCont.innerHTML='';
+            if(!crit.applicable) {
+                var note=document.createElement('div');
+                note.style.cssText='font-size:0.78rem;color:#92400e;font-weight:600;';
+                note.textContent='Método no ejecutado: no se generan exclusiones ni se contabiliza como resultado negativo.';
+                listCont.appendChild(note);
+            } else if(!crit.outliers.length) {
+                var empty=document.createElement('div');
+                empty.style.cssText='font-size:0.78rem;color:var(--success);font-weight:600;';
+                empty.textContent='Ningún valor señalado por este criterio.';
+                listCont.appendChild(empty);
             } else {
-                crit.outliers.forEach(function(item) {
-                    var div = document.createElement('div');
-                    div.style.cssText = "display: flex; justify-content: space-between; font-size: 0.75rem; background: #fee2e2; padding: 4px 8px; border-radius: 4px; border: 1px solid #fca5a5;";
-                    div.innerHTML = '<span class="mono"><strong>#' + (item.idx + 1) + '</strong></span> <strong class="mono" style="color: #b91c1c;">' + formatES(item.row.pu, 2) + ' UM/m²</strong>';
-                    listCont.appendChild(div);
+                crit.outliers.forEach(function(item){
+                    var div=document.createElement('div');
+                    div.style.cssText='display:flex;justify-content:space-between;font-size:0.75rem;background:#fee2e2;padding:4px 8px;border-radius:4px;border:1px solid #fca5a5;';
+                    var left=document.createElement('span'); left.className='mono'; left.textContent='#'+(item.idx+1);
+                    var right=document.createElement('strong'); right.className='mono'; right.style.color='#b91c1c'; right.textContent=formatES(item.row.pu,2)+' UM/m²';
+                    div.appendChild(left); div.appendChild(right); listCont.appendChild(div);
                 });
             }
         }
+
 
         function renderMatrixSummary() {
             var matrixBody = document.getElementById('matrix-body');
@@ -1707,6 +2031,10 @@
                 var cellsHtml = '';
 
                 criteriaResults.forEach(function(crit) {
+                    if (!crit.applicable) {
+                        cellsHtml += '<td style="color:#94a3b8;text-align:center;">N/A</td>';
+                        return;
+                    }
                     var isOut = crit.outliers.some(function(o) { return o.idx === idx; });
                     if (isOut) {
                         outlierCount++;
@@ -1716,12 +2044,11 @@
                     }
                 });
 
-                var consensusHtml = '<span class="tag-valid">Válido</span>';
-                if (outlierCount >= 5) {
-                    consensusHtml = '<span class="tag-outlier">ATÍPICO (' + outlierCount + '/10)</span>';
-                    tr.style.backgroundColor = "rgba(239, 68, 68, 0.04)";
-                } else if (outlierCount > 0) {
-                    consensusHtml = '<span style="background: #fef3c7; color: #b45309; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">Dudoso (' + outlierCount + '/10)</span>';
+                var testedCount = criteriaResults.filter(function(c){return c.applicable;}).length;
+                var consensusHtml = '<span class="tag-valid">Sin señal (' + outlierCount + '/' + testedCount + ')</span>';
+                if (outlierCount > 0) {
+                    consensusHtml = '<span style="background:#fef3c7;color:#92400e;font-size:0.7rem;font-weight:700;padding:2px 6px;border-radius:4px;">Revisar (' + outlierCount + '/' + testedCount + ')</span>';
+                    tr.style.backgroundColor = 'rgba(245,158,11,0.06)';
                 }
 
                 tr.innerHTML = 
@@ -1742,7 +2069,6 @@
             }
         }
 
-        // Histograma de Frecuencias con Curva Normal Sobrepuesta
         function renderHistogram(sortedArr, mean, sd) {
             var ctxHistNormal = document.getElementById('histNormalChart').getContext('2d');
             if (histNormalChartInstance) histNormalChartInstance.destroy();
@@ -1751,6 +2077,7 @@
             var minVal = sortedArr[0];
             var maxVal = sortedArr[sortedArr.length - 1];
             var binWidth = (maxVal - minVal) / k;
+            if (!(binWidth > 0)) binWidth = Math.max(Math.abs(minVal) * 0.01, 1);
             
             var histLabels = [];
             var histCounts = new Array(k).fill(0);
@@ -1773,6 +2100,7 @@
 
             var totalN = sortedArr.length;
             var normalPoints = midPoints.map(function(x) {
+                if (!(sd > 0)) return 0;
                 var z = (x - mean) / sd;
                 var phi = (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z);
                 return phi * totalN * binWidth;
@@ -1819,7 +2147,6 @@
             });
         }
 
-        // Traditional Box-Plot Custom HTML5 Canvas Renderer
         function drawTraditionalBoxPlot(sortedArr, q1, median, q3, tukey_lower, tukey_upper, mean) {
             var canvas = document.getElementById('boxplotCanvas');
             if (!canvas) return;
@@ -1853,6 +2180,7 @@
 
             var plotMin = Math.min(minVal, tukey_lower - 50);
             var plotMax = Math.max(maxVal, tukey_upper + 50);
+            if (!(plotMax > plotMin)) { plotMin -= 1; plotMax += 1; }
 
             function scaleX(val) {
                 return paddingLeft + ((val - plotMin) / (plotMax - plotMin)) * (width - paddingLeft - paddingRight);
@@ -1862,7 +2190,7 @@
             var boxHeight = 50;
             var boxCenterY = boxY + boxHeight / 2;
 
-            // 1. Draw Axis & Scale Ticks
+            // 1. Eje y marcas
             ctx.strokeStyle = '#cbd5e1';
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -1885,7 +2213,7 @@
                 ctx.fillText(formatES(tv, 0), tx, height - paddingBottom + 27);
             }
 
-            // 2. Draw Horizontal Whiskers Line
+            // 2. Bigotes
             ctx.strokeStyle = '#1e3a8a';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -1895,7 +2223,6 @@
             ctx.lineTo(scaleX(whiskerMax), boxCenterY);
             ctx.stroke();
 
-            // 3. Draw Whisker Caps (Vertical Lines)
             var capHeight = 24;
             ctx.beginPath();
             ctx.moveTo(scaleX(whiskerMin), boxCenterY - capHeight / 2);
@@ -1904,7 +2231,7 @@
             ctx.lineTo(scaleX(whiskerMax), boxCenterY + capHeight / 2);
             ctx.stroke();
 
-            // 4. Draw Interquartile Box (Q1 to Q3)
+            // 3. Caja Q1 - Q3
             var xQ1 = scaleX(q1);
             var xQ3 = scaleX(q3);
             var boxWidth = xQ3 - xQ1;
@@ -1916,7 +2243,7 @@
             ctx.lineWidth = 2;
             ctx.strokeRect(xQ1, boxY, boxWidth, boxHeight);
 
-            // 5. Draw Median Line (Thick Line inside box)
+            // 4. Mediana
             var xMed = scaleX(median);
             ctx.strokeStyle = '#0284c7';
             ctx.lineWidth = 3;
@@ -1925,14 +2252,14 @@
             ctx.lineTo(xMed, boxY + boxHeight);
             ctx.stroke();
 
-            // 6. Draw Mean Marker (+)
+            // 5. Media (+)
             var xMean = scaleX(mean);
             ctx.fillStyle = '#dc2626';
             ctx.font = 'bold 13px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('+', xMean, boxCenterY + 4);
 
-            // 7. Draw Outlier Points (Red Circles with border)
+            // 6. Atípicos
             outliers.forEach(function(outVal) {
                 var xOut = scaleX(outVal);
                 ctx.fillStyle = '#ef4444';
@@ -1948,7 +2275,6 @@
                 ctx.fillText(formatES(outVal, 0), xOut, boxY - 8);
             });
 
-            // 8. Top annotations for Q1, Med, Q3
             ctx.fillStyle = '#1e3a8a';
             ctx.font = 'bold 9px "JetBrains Mono", monospace';
             ctx.fillText('Q1: ' + formatES(q1, 0), xQ1, boxY + boxHeight + 14);
@@ -1956,126 +2282,67 @@
             ctx.fillText('Q3: ' + formatES(q3, 0), xQ3, boxY + boxHeight + 14);
         }
 
-        // Valuation & Appraisal Table [Según Norma NBR 14653-2]
+        
         function renderAppraisalTable() {
-            var tbody = document.getElementById('avaluo-table-body');
-            tbody.innerHTML = '';
+            var tbody=document.getElementById('avaluo-table-body');
+            tbody.innerHTML='';
+            var area=parseES(document.getElementById('subject-area').value);
+            var confKey=document.getElementById('conf-level').value||'0.95';
+            var alpha=1-Number(confKey);
+            var arbRaw=parseES(document.getElementById('arbitrio-pct').value);
+            if(!(area>0)) area=NaN;
+            if(!Number.isFinite(arbRaw)||arbRaw<0||arbRaw>100) arbRaw=NaN;
+            var active=currentData.filter(function(r){return r.enabled&&Number.isFinite(r.pu)&&r.pu>0;}).map(function(r){return r.pu;});
+            var n=active.length;
+            var st=sampleStats(active);
+            var tCrit=n>1?studentTQuantile(1-alpha/2,n-1):NaN;
+            var ciLow=st.mean-tCrit*st.sd/Math.sqrt(n);
+            var ciHigh=st.mean+tCrit*st.sd/Math.sqrt(n);
+            document.getElementById('val-ci-label').textContent='IC t de la media muestral ('+document.getElementById('conf-level').options[document.getElementById('conf-level').selectedIndex].text+')';
 
-            var subjectArea = parseES(document.getElementById('subject-area').value) || 100;
-            var confKey = document.getElementById('conf-level').value || "0.95";
-            var arbitrioPct = (parseES(document.getElementById('arbitrio-pct').value) || 15) / 100;
-            var tCrit = T_CRIT_MAP[confKey] || 2.045;
-
-            var confLabel = document.getElementById('conf-level').options[document.getElementById('conf-level').selectedIndex].text;
-            document.getElementById('val-ci-label').textContent = 'Intervalo de Confianza (' + confLabel + ')';
-
-            var grandTotalUnitMean = 0;
-            var grandTotalUnitMin = 0;
-            var grandTotalUnitMax = 0;
-
-            criteriaResults.forEach(function(crit) {
-                var validN = crit.cleanData.length;
-                var puMed = crit.cleanMean;
-                var errorTipico = validN > 1 ? (crit.cleanSd / Math.sqrt(validN)) : 0;
-                
-                var puMin = puMed - (tCrit * errorTipico);
-                var puMax = puMed + (tCrit * errorTipico);
-
-                var totMin = puMin * subjectArea;
-                var totMed = puMed * subjectArea;
-                var totMax = puMax * subjectArea;
-
-                grandTotalUnitMean += puMed;
-                grandTotalUnitMin += puMin;
-                grandTotalUnitMax += puMax;
-
-                var tr = document.createElement('tr');
-                tr.innerHTML = 
-                    '<td><strong>' + crit.name + '</strong></td>' +
-                    '<td class="mono" style="text-align: right;">' + validN + '</td>' +
-                    '<td class="mono" style="text-align: right;">' + formatES(puMin, 2) + '</td>' +
-                    '<td class="mono" style="text-align: right; font-weight: 700; color: #1e3a8a;">' + formatES(puMed, 2) + '</td>' +
-                    '<td class="mono" style="text-align: right;">' + formatES(puMax, 2) + '</td>' +
-                    '<td class="mono" style="text-align: right;">' + formatES(totMin, 2) + '</td>' +
-                    '<td class="mono" style="text-align: right; font-weight: 700; background: #f0f9ff; color: #0284c7;">' + formatES(totMed, 2) + '</td>' +
-                    '<td class="mono" style="text-align: right;">' + formatES(totMax, 2) + '</td>';
-                tbody.appendChild(tr);
+            criteriaResults.forEach(function(crit){
+                var row=document.createElement('tr');
+                var vals=crit.applicable?crit.cleanData:[];
+                var cst=vals.length?sampleStats(vals):{n:0,mean:NaN,sd:NaN};
+                var cLow=vals.length>1?cst.mean-studentTQuantile(1-alpha/2,vals.length-1)*cst.sd/Math.sqrt(vals.length):NaN;
+                var cHigh=vals.length>1?cst.mean+studentTQuantile(1-alpha/2,vals.length-1)*cst.sd/Math.sqrt(vals.length):NaN;
+                var cells=[
+                    crit.name,
+                    crit.applicable?String(vals.length):'N/A',
+                    Number.isFinite(cLow)?formatES(cLow,2):'—',
+                    Number.isFinite(cst.mean)?formatES(cst.mean,2):'—',
+                    Number.isFinite(cHigh)?formatES(cHigh,2):'—',
+                    Number.isFinite(cLow)&&Number.isFinite(area)?formatES(cLow*area,2):'—',
+                    Number.isFinite(cst.mean)&&Number.isFinite(area)?formatES(cst.mean*area,2):'—',
+                    Number.isFinite(cHigh)&&Number.isFinite(area)?formatES(cHigh*area,2):'—'
+                ];
+                cells.forEach(function(value,idx){
+                    var td=document.createElement('td');
+                    td.textContent=value;
+                    if(idx>0) td.className='mono';
+                    if(idx>0) td.style.textAlign='right';
+                    if(idx===0){var strong=document.createElement('strong');strong.textContent=value;td.textContent='';td.appendChild(strong);}
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
             });
 
-            // Promedio de Criterios
-            var numCrit = criteriaResults.length;
-            var avgPuMed = grandTotalUnitMean / numCrit;
-            var avgPuMin = grandTotalUnitMin / numCrit;
-            var avgPuMax = grandTotalUnitMax / numCrit;
+            var centralTotal=Number.isFinite(area)?st.mean*area:NaN;
+            document.getElementById('val-central').textContent=Number.isFinite(centralTotal)?formatES(centralTotal,2)+' UM':'— UM (indique área válida)';
+            document.getElementById('val-central-pu').textContent=formatES(st.mean,2);
+            document.getElementById('val-ci').textContent=Number.isFinite(area)?'['+formatES(ciLow*area,2)+' - '+formatES(ciHigh*area,2)+'] UM':'['+formatES(ciLow,2)+' - '+formatES(ciHigh,2)+'] UM/m²';
 
-            var avgTotMed = avgPuMed * subjectArea;
-            var avgTotMin = avgPuMin * subjectArea;
-            var avgTotMax = avgPuMax * subjectArea;
-
-            var summaryTr = document.createElement('tr');
-            summaryTr.style.cssText = "background: #f1f5f9; font-weight: 800; border-top: 2px solid var(--border-color);";
-            summaryTr.innerHTML = 
-                '<td>PROMEDIO DE CRITERIOS</td>' +
-                '<td class="mono" style="text-align: right;">—</td>' +
-                '<td class="mono" style="text-align: right;">' + formatES(avgPuMin, 2) + '</td>' +
-                '<td class="mono" style="text-align: right; color: #1e3a8a;">' + formatES(avgPuMed, 2) + '</td>' +
-                '<td class="mono" style="text-align: right;">' + formatES(avgPuMax, 2) + '</td>' +
-                '<td class="mono" style="text-align: right;">' + formatES(avgTotMin, 2) + '</td>' +
-                '<td class="mono" style="text-align: right; background: #bae6fd; color: #0369a1;">' + formatES(avgTotMed, 2) + '</td>' +
-                '<td class="mono" style="text-align: right;">' + formatES(avgTotMax, 2) + '</td>';
-            tbody.appendChild(summaryTr);
-
-            // Appraisal Cards Update [Según Norma NBR 14653-2]
-            var arbitrioLow = avgTotMed * (1 - arbitrioPct);
-            var arbitrioHigh = avgTotMed * (1 + arbitrioPct);
-            var admisibleLow = Math.max(avgTotMin, arbitrioLow);
-            var admisibleHigh = Math.min(avgTotMax, arbitrioHigh);
-
-            document.getElementById('val-central').textContent = formatES(avgTotMed, 2) + ' UM';
-            document.getElementById('val-central-pu').textContent = formatES(avgPuMed, 2);
-            document.getElementById('val-ci').textContent = '[' + formatES(avgTotMin, 2) + ' - ' + formatES(avgTotMax, 2) + '] UM';
-            document.getElementById('val-arbitrio').textContent = '[' + formatES(arbitrioLow, 2) + ' - ' + formatES(arbitrioHigh, 2) + '] UM';
-            document.getElementById('val-admisible').textContent = '[' + formatES(admisibleLow, 2) + ' - ' + formatES(admisibleHigh, 2) + '] UM';
-        }
-
-        // Bulk Modal Helpers (Libreta de datos)
-        function openBulkInputModal() {
-            document.getElementById('bulkModal').style.display = 'flex';
-        }
-
-        function closeBulkInputModal() {
-            document.getElementById('bulkModal').style.display = 'none';
-        }
-
-        function applyBulkData() {
-            var rawText = document.getElementById('bulk-textarea').value.trim();
-            if (!rawText) return;
-
-            var tokens = rawText.split(/[\r\n;]+/).filter(function(t) { return t.trim() !== ""; });
-            var parsedPUs = tokens.map(function(t) { return parseES(t); }).filter(function(n) { return !isNaN(n) && n > 0; });
-
-            if (parsedPUs.length === 0) {
-                alert("No se detectaron valores numéricos válidos.");
-                return;
+            if(Number.isFinite(arbRaw)) {
+                var pct=arbRaw/100, low=centralTotal*(1-pct), high=centralTotal*(1+pct);
+                document.getElementById('val-arbitrio').textContent=Number.isFinite(centralTotal)?'['+formatES(low,2)+' - '+formatES(high,2)+'] UM':'—';
+                var interLow=Math.max(ciLow*area,low), interHigh=Math.min(ciHigh*area,high);
+                document.getElementById('val-admisible').textContent=Number.isFinite(area)&&interLow<=interHigh?'['+formatES(interLow,2)+' - '+formatES(interHigh,2)+'] UM':'Sin intersección estadística';
+            } else {
+                document.getElementById('val-arbitrio').textContent='Ingrese un porcentaje entre 0 y 100';
+                document.getElementById('val-admisible').textContent='No calculado';
             }
-
-            if (parsedPUs.length > 30) {
-                alert("Se detectaron " + parsedPUs.length + " valores. Se tomarán los primeros 30 según el límite de la herramienta.");
-            }
-
-            var clamped = parsedPUs.slice(0, 30);
-            currentData = clamped.map(function(pu, i) {
-                return {
-                    id: i + 1,
-                    pu: pu,
-                    enabled: true
-                };
-            });
-
-            closeBulkInputModal();
-            renderTable();
-            runCalculations();
         }
+
 
         function exportMatrixToCSV() {
             var csv = "N;PU_UM_m2;Desv_Estandar;Desv_Media;Peirce;Chauvenet;Dixon;Rosner;Grubbs;Tukey;Puntaje_Z;Hampel\r\n";
@@ -2109,5 +2376,13 @@
             }
         });
     </script>
+
+    <section id="methodology-warning" style="margin:18px auto;max-width:1400px;padding:14px 18px;border:1px solid #f59e0b;border-left:5px solid #d97706;border-radius:10px;background:#fffbeb;color:#78350f;font:500 13px/1.55 Arial,sans-serif;">
+      <strong>Nota metodológica:</strong> una observación señalada como atípica es una señal para investigar, no una autorización automática para excluirla.
+      Los métodos exploratorios no equivalen a pruebas formales. Peirce y Dixon quedan identificados como no calculados hasta disponer de parámetros/tablas críticas verificadas.
+      El intervalo t se calcula sobre la muestra activa original; no corrige la incertidumbre inducida por la selección posterior de observaciones.
+      La estimación resultante es un apoyo estadístico y no sustituye el análisis de comparabilidad ni el juicio profesional del valuador.
+    </section>
+
 </body>
 </html>
