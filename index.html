@@ -893,14 +893,14 @@
             <div class="hero-tag">
                 Saneamiento de Muestra de Mercado (Detección de Datos Atípicos)
             </div>
-            <h1>Diez criterios clave para muestras comparables de hasta 30 observaciones.</h1>
+            <h1>Ocho criterios clave para muestras comparables de hasta 30 observaciones.</h1>
         </div>
     </section>
 
     <!-- Main Content -->
     <main class="main-wrapper">
 
-        <!-- Upload Banner Area: Reemplazo integral de entrada manual por archivos -->
+        <!-- Upload Banner Area -->
         <div class="upload-area" id="section-upload">
             <div class="upload-info">
                 <div class="upload-icon">📂</div>
@@ -928,7 +928,7 @@
             </div>
         </div>
 
-        <!-- Upper Layout: Table (PU only with Checkbox) + Stats from Sheet 0 -->
+        <!-- Upper Layout: Table + Stats -->
         <div class="grid-layout">
             
             <!-- Left Column: Input Data Table with ONLY Precio Unitario and Checkbox -->
@@ -983,7 +983,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: ALL Statistics from Sheet '0. Muestra original' -->
+            <!-- Right Column: Statistics -->
             <div class="card" id="section-estadisticos">
                 <div class="card-header">
                     <div>
@@ -1071,8 +1071,6 @@
 
                 <!-- Two Scientific Charts -->
                 <div class="charts-two-grid">
-                    
-                    <!-- 1. Histogram with Normal Curve Overlay -->
                     <div class="chart-card-box">
                         <div class="chart-card-header">
                             <span>Histograma + Curva Normal</span>
@@ -1083,7 +1081,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. Traditional Box-Plot -->
                     <div class="chart-card-box">
                         <div class="chart-card-header">
                             <span>Diagrama de Caja y Bigotes</span>
@@ -1093,7 +1090,6 @@
                             <canvas id="boxplotCanvas"></canvas>
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -1110,18 +1106,16 @@
                 </div>
             </div>
 
-            <!-- Tab Buttons for the 10 methods -->
+            <!-- Tab Buttons for the 8 active methods -->
             <div class="tabs-header" id="criteria-tabs">
                 <button class="tab-btn active" onclick="switchCriteriaTab(0)">1. Desv. Estándar</button>
                 <button class="tab-btn" onclick="switchCriteriaTab(1)">2. Desv. Media</button>
-                <button class="tab-btn" onclick="switchCriteriaTab(2)">3. Peirce</button>
-                <button class="tab-btn" onclick="switchCriteriaTab(3)">4. Chauvenet</button>
-                <button class="tab-btn" onclick="switchCriteriaTab(4)">5. Dixon</button>
-                <button class="tab-btn" onclick="switchCriteriaTab(5)">6. Rosner</button>
-                <button class="tab-btn" onclick="switchCriteriaTab(6)">7. Grubbs</button>
-                <button class="tab-btn" onclick="switchCriteriaTab(7)">8. Tukey</button>
-                <button class="tab-btn" onclick="switchCriteriaTab(8)">9. Puntaje Z</button>
-                <button class="tab-btn" onclick="switchCriteriaTab(9)">10. Hampel</button>
+                <button class="tab-btn" onclick="switchCriteriaTab(2)">3. Chauvenet</button>
+                <button class="tab-btn" onclick="switchCriteriaTab(3)">4. Rosner</button>
+                <button class="tab-btn" onclick="switchCriteriaTab(4)">5. Grubbs</button>
+                <button class="tab-btn" onclick="switchCriteriaTab(5)">6. Tukey</button>
+                <button class="tab-btn" onclick="switchCriteriaTab(6)">7. Puntaje Z</button>
+                <button class="tab-btn" onclick="switchCriteriaTab(7)">8. Hampel</button>
             </div>
 
             <!-- Criteria Details Panel -->
@@ -1161,12 +1155,12 @@
             </div>
         </div>
 
-        <!-- Full Matrix Summary of All 10 Criteria -->
+        <!-- Full Matrix Summary of All 8 Criteria -->
         <div class="card" id="section-matriz">
             <div class="card-header">
                 <div>
                     <div class="card-title">📑 Matriz General de Saneamiento y Consenso de Outliers</div>
-                    <div class="card-subtitle">Comparativa punto a punto a través de los 10 criterios de detección simultánea</div>
+                    <div class="card-subtitle">Comparativa punto a punto a través de los 8 criterios de detección simultánea</div>
                 </div>
                 <div class="card-header-actions">
                     <button class="btn btn-outline btn-sm" onclick="exportMatrixToCSV()">📥 Exportar CSV</button>
@@ -1182,14 +1176,12 @@
                             <th style="text-align: right;">P.U. (UM/m²)</th>
                             <th>1. Desv. Est.</th>
                             <th>2. Desv. Med.</th>
-                            <th>3. Peirce</th>
-                            <th>4. Chauvenet</th>
-                            <th>5. Dixon</th>
-                            <th>6. Rosner</th>
-                            <th>7. Grubbs</th>
-                            <th>8. Tukey</th>
-                            <th>9. Puntaje Z</th>
-                            <th>10. Hampel</th>
+                            <th>3. Chauvenet</th>
+                            <th>4. Rosner</th>
+                            <th>5. Grubbs</th>
+                            <th>6. Tukey</th>
+                            <th>7. Puntaje Z</th>
+                            <th>8. Hampel</th>
                             <th>Consenso</th>
                         </tr>
                     </thead>
@@ -1294,7 +1286,7 @@
         let activeTab = 0;
         let histNormalChartInstance = null;
         let criteriaResults = [];
-        let importedDataset = null; // Guarda columnas importadas del archivo
+        let importedDataset = null;
 
         // Formatting Helpers: Spanish format strictly with dot for thousands and comma for decimals
         function formatES(num, decimals) {
@@ -1307,7 +1299,6 @@
             return intPart + (decimals > 0 ? ',' + parts[1] : '');
         }
 
-        
         function parseES(value) {
             if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
             if (value === null || value === undefined) return NaN;
@@ -1342,6 +1333,7 @@
             var result = Number(s);
             return Number.isFinite(result) ? result : NaN;
         }
+
         // Funciones numéricas: cuantiles normales y t de Student calculados dinámicamente.
         function inverseNormal(p) {
             if (!(p > 0 && p < 1)) return NaN;
@@ -1475,14 +1467,12 @@
             }
             return {indices:removed.slice(0,kmax), note:"ESD generalizado bilateral, α = "+alpha+"; máximo evaluado: "+maxOut+" observaciones."};
         }
-        
 
         window.addEventListener('DOMContentLoaded', () => {
             renderTable();
             runCalculations();
         });
 
-        // Limpiar muestra
         function resetSample() {
             currentData = [];
             importedDataset = null;
@@ -1493,7 +1483,6 @@
             runCalculations();
         }
 
-        // Cargar muestra de demostración (30 observaciones)
         function loadDemoSample() {
             var demo = [
                 383.60, 322.12, 200.00, 282.14, 226.42, 466.67, 395.48, 436.38, 291.67, 408.16,
@@ -1503,7 +1492,6 @@
             setCleanArrayData(demo, "Muestra Demo (30 datos)");
         }
 
-        
         function setCleanArrayData(numbers, sourceName) {
             var validNumbers = numbers.filter(function(v){ return Number.isFinite(v) && v > 0; });
             if (validNumbers.length > 30) {
@@ -1518,7 +1506,6 @@
             renderTable();
             runCalculations();
         }
-
 
         // ==========================================
         //  MANEJADOR UNIVERSAL DE ARCHIVOS
@@ -1541,7 +1528,6 @@
             }
         }
 
-        // 1. Lectura de Excel
         function readExcelFile(file) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -1559,7 +1545,6 @@
             reader.readAsArrayBuffer(file);
         }
 
-        // 2. Lectura de CSV / TXT
         function readCSVFile(file) {
             var reader = new FileReader();
             reader.onload = function(e) {
@@ -1612,7 +1597,6 @@
             return rows;
         }
 
-        // 3. Lectura de Tablas en PDF
         async function readPDFFile(file) {
             if (typeof pdfjsLib === 'undefined') {
                 alert('La librería PDF.js no está disponible.');
@@ -1629,7 +1613,6 @@
                     var textContent = await page.getTextContent();
                     var items = textContent.items;
 
-                    // Agrupar por coordenada Y aproximada para reconstruir filas
                     var lineMap = {};
                     items.forEach(function(item) {
                         var y = Math.round(item.transform[5] / 4) * 4;
@@ -1641,7 +1624,6 @@
                     sortedY.forEach(function(y) {
                         var lineText = lineMap[y].join(' ');
                         allLines.push(lineText);
-                        // Buscar posibles números
                         var tokens = lineText.split(/\s+/);
                         tokens.forEach(function(tok) {
                             var val = parseES(tok);
@@ -1668,7 +1650,6 @@
             }
         }
 
-        // Procesamiento de matrices tabulares (Excel / CSV)
         function processTabularMatrix(matrix, fileName) {
             matrix = matrix.filter(function(r) { return r && r.some(function(c) { return String(c).trim() !== ''; }); });
             if (matrix.length < 2) {
@@ -1697,7 +1678,6 @@
                 });
             }
 
-            // Filtrar columnas que tengan datos numéricos
             var validCols = columnsData.filter(function(c) { return c.values.length > 0; });
             if (validCols.length === 0) {
                 alert('No se encontraron columnas con valores numéricos positivos en el archivo.');
@@ -1706,7 +1686,6 @@
 
             importedDataset = { fileName: fileName, columns: validCols };
 
-            // Configurar selector de columnas
             var colSelect = document.getElementById('col-select');
             colSelect.innerHTML = '';
             validCols.forEach(function(c) {
@@ -1716,7 +1695,6 @@
                 colSelect.appendChild(opt);
             });
 
-            // Sugerencia inteligente de columna de Precio Unitario
             var suggestedIdx = validCols[0].index;
             var match = validCols.find(function(c) {
                 return /precio|pu|unit|valor|m2|price/i.test(c.name);
@@ -1810,9 +1788,8 @@
         }
 
         // ==========================================
-        //  MOTOR ESTADÍSTICO Y DE SANEAMIENTO
+        //  MOTOR ESTADÍSTICO Y DE SANEAMIENTO (8 MÉTODOS)
         // ==========================================
-        
         function runCalculations() {
             var validRows=currentData.filter(function(d){return d.enabled && Number.isFinite(d.pu) && d.pu>0;});
             var puValues=validRows.map(function(d){return d.pu;});
@@ -1887,45 +1864,39 @@
                 criteriaResults.push(evaluateCriteria(name,desc,formula,options.applicable===false?function(){return false;}:fn,options));
             }
 
-            // 1. Regla descriptiva ±2s (no es una prueba formal de significación).
+            // 1. Regla ±2s
             var sdLo=mean-2*sd, sdHi=mean+2*sd;
             addCriterion('1. Desviación estándar ±2s','Regla exploratoria de cribado. Su resultado depende de la media y desviación estándar y es sensible a asimetría. No constituye por sí sola una prueba formal.','Límites: ['+formatES(sdLo,2)+' ; '+formatES(sdHi,2)+'] UM/m²',function(v){return sd>0&&(v<sdLo||v>sdHi);});
 
-            // 2. Desviación media absoluta: indicador descriptivo, no test calibrado.
+            // 2. Desviación media absoluta
             addCriterion('2. Desviación media absoluta','Indicador descriptivo exploratorio; no tiene un nivel de significación estadística calibrado. Debe interpretarse solo como señal de revisión.','|x − x̄| > desviación media = '+formatES(meanDev,2)+' UM/m²',function(v){return Math.abs(v-mean)>meanDev;});
 
-            // 3. Peirce: no se inventa un factor R fijo; requiere especificar N, número de sospechosos y formulación.
-            addCriterion('3. Criterio de Peirce','No se automatiza en esta versión: el factor depende del tamaño muestral y del número de observaciones sospechosas que se pretende rechazar. No se aplica un factor fijo.','NO CALCULADO. Requiere parametrización específica del problema de Peirce.',function(){return false;},{applicable:false});
-
-            // 4. Chauvenet: umbral normal exacto para P(|Z| ≥ z) = 1/(2N), aplicación de una sola pasada.
+            // 3. Chauvenet
             var chZ=chauvenetCritical(n);
-            addCriterion('4. Criterio de Chauvenet','Aplicación de una sola pasada sobre la muestra activa. Umbral obtenido de la distribución normal estándar; no se repite automáticamente después de retirar casos. Supone una población aproximadamente normal.','P(|Z| ≥ z) = 1/(2N); z crítico = '+formatES(chZ,4),function(v){return sd>0&&Math.abs(v-mean)/sd>chZ;});
+            addCriterion('3. Criterio de Chauvenet','Aplicación de una sola pasada sobre la muestra activa. Umbral obtenido de la distribución normal estándar; no se repite automáticamente después de retirar casos. Supone una población aproximadamente normal.','P(|Z| ≥ z) = 1/(2N); z crítico = '+formatES(chZ,4),function(v){return sd>0&&Math.abs(v-mean)/sd>chZ;});
 
-            // 5. Dixon r22: se desactiva hasta disponer de tabla crítica verificada para cada N y variante.
-            addCriterion('5. Criterio de Dixon','No se automatiza: el valor crítico debe corresponder exactamente a la variante de Dixon, tamaño muestral y nivel α. Se elimina el uso de una constante única para todos los N.','NO CALCULADO. Seleccione tabla crítica validada para la variante y N.',function(){return false;},{applicable:false});
-
-            // 6. Rosner Generalized ESD.
+            // 4. Rosner ESD
             var ros=rosnerESD(puValues,0.05);
-            addCriterion('6. Rosner (Generalized ESD)',ros.note+' Supuesto de normalidad aproximada; α = 0,05.','Índices identificados por ESD: '+(ros.indices.length?ros.indices.map(function(i){return i+1;}).join(', '):'ninguno'),function(v,idx){return ros.indices.indexOf(puValues.indexOf(v))>=0;},{indexOutliers:ros.indices});
+            addCriterion('4. Rosner (Generalized ESD)',ros.note+' Supuesto de normalidad aproximada; α = 0,05.','Índices identificados por ESD: '+(ros.indices.length?ros.indices.map(function(i){return i+1;}).join(', '):'ninguno'),function(v,idx){return ros.indices.indexOf(puValues.indexOf(v))>=0;},{indexOutliers:ros.indices});
 
-            // 7. Grubbs: máximo desvío, bilateral, α=0,05.
+            // 5. Grubbs
             var gCrit=grubbsCritical(n,0.05);
             var gMax=sd>0?Math.max.apply(null,puValues.map(function(v){return Math.abs(v-mean)/sd;})):0;
             var gFlag=gMax>gCrit;
             var gIndex=-1;
             if(gFlag){gIndex=puValues.findIndex(function(v){return Math.abs(v-mean)/sd===gMax;});}
-            addCriterion('7. Grubbs','Prueba bilateral para un único valor atípico, bajo normalidad aproximada; α = 0,05. No detecta de forma fiable varios atípicos simultáneos.','G observado = '+formatES(gMax,4)+'; G crítico = '+formatES(gCrit,4),function(v,idx){return gFlag&&idx===validRows[gIndex] && Math.abs(v-mean)/sd===gMax;});
+            addCriterion('5. Grubbs','Prueba bilateral para un único valor atípico, bajo normalidad aproximada; α = 0,05. No detecta de forma fiable varios atípicos simultáneos.','G observado = '+formatES(gMax,4)+'; G crítico = '+formatES(gCrit,4),function(v,idx){return gFlag&&idx===validRows[gIndex] && Math.abs(v-mean)/sd===gMax;});
 
-            // 8. Tukey.
+            // 6. Tukey
             var tukeyLo=q1-1.5*iqr, tukeyHi=q3+1.5*iqr;
-            addCriterion('8. Tukey (1,5 × IQR)','Regla robusta exploratoria de cercas intercuartílicas. Se usa interpolación lineal tipo 7 para los cuartiles. No equivale a una prueba de significación.','Cercas: ['+formatES(tukeyLo,2)+' ; '+formatES(tukeyHi,2)+'] UM/m²; IQR = '+formatES(iqr,2),function(v){return v<tukeyLo||v>tukeyHi;});
+            addCriterion('6. Tukey (1,5 × IQR)','Regla robusta exploratoria de cercas intercuartílicas. Se usa interpolación lineal tipo 7 para los cuartiles. No equivale a una prueba de significación.','Cercas: ['+formatES(tukeyLo,2)+' ; '+formatES(tukeyHi,2)+'] UM/m²; IQR = '+formatES(iqr,2),function(v){return v<tukeyLo||v>tukeyHi;});
 
-            // 9. Z score: regla exploratoria.
-            addCriterion('9. Puntaje Z (2,5)','Regla exploratoria basada en puntuación Z; sensible a valores extremos y asimetría. No debe interpretarse como prueba formal con α definido.','|Z| > 2,5; s = '+formatES(sd,2),function(v){return sd>0&&Math.abs((v-mean)/sd)>2.5;});
+            // 7. Puntaje Z
+            addCriterion('7. Puntaje Z (2,5)','Regla exploratoria basada en puntuación Z; sensible a valores extremos y asimetría. No debe interpretarse como prueba formal con α definido.','|Z| > 2,5; s = '+formatES(sd,2),function(v){return sd>0&&Math.abs((v-mean)/sd)>2.5;});
 
-            // 10. Hampel: MAD mediana correcta, MAD escalada; MAD=0 no genera falsos positivos.
+            // 8. Hampel
             var madScale=1.4826*mad, hLo=median-3*madScale, hHi=median+3*madScale;
-            addCriterion('10. Hampel (MAD)','Filtro robusto basado en la mediana y MAD. MAD calculada como mediana de las desviaciones absolutas (promedio de los dos centrales cuando N es par). Si MAD=0, el criterio no marca casos automáticamente.','Mediana ± 3 × 1,4826 × MAD; MAD = '+formatES(mad,4),function(v){return madScale>0&&(v<hLo||v>hHi);});
+            addCriterion('8. Hampel (MAD)','Filtro robusto basado en la mediana y MAD. MAD calculada como mediana de las desviaciones absolutas (promedio de los dos centrales cuando N es par). Si MAD=0, el criterio no marca casos automáticamente.','Mediana ± 3 × 1,4826 × MAD; MAD = '+formatES(mad,4),function(v){return madScale>0&&(v<hLo||v>hHi);});
 
             renderMatrixSummary();
             renderCriteriaTabDetail();
@@ -1934,8 +1905,6 @@
             renderAppraisalTable();
         }
 
-
-        
         function evaluateCriteria(name, desc, formula, isOutlierFn, options) {
             options=options||{};
             var outliers=[], cleanData=[];
@@ -1966,7 +1935,6 @@
             };
         }
 
-
         function getQuantile(sortedArr, q) {
             var pos = (sortedArr.length - 1) * q;
             var base = Math.floor(pos);
@@ -1986,7 +1954,6 @@
             renderCriteriaTabDetail();
         }
 
-        
         function renderCriteriaTabDetail() {
             if(!criteriaResults[activeTab]) return;
             var crit=criteriaResults[activeTab];
@@ -2018,7 +1985,6 @@
                 });
             }
         }
-
 
         function renderMatrixSummary() {
             var matrixBody = document.getElementById('matrix-body');
@@ -2190,7 +2156,6 @@
             var boxHeight = 50;
             var boxCenterY = boxY + boxHeight / 2;
 
-            // 1. Eje y marcas
             ctx.strokeStyle = '#cbd5e1';
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -2213,7 +2178,6 @@
                 ctx.fillText(formatES(tv, 0), tx, height - paddingBottom + 27);
             }
 
-            // 2. Bigotes
             ctx.strokeStyle = '#1e3a8a';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -2231,7 +2195,6 @@
             ctx.lineTo(scaleX(whiskerMax), boxCenterY + capHeight / 2);
             ctx.stroke();
 
-            // 3. Caja Q1 - Q3
             var xQ1 = scaleX(q1);
             var xQ3 = scaleX(q3);
             var boxWidth = xQ3 - xQ1;
@@ -2243,7 +2206,6 @@
             ctx.lineWidth = 2;
             ctx.strokeRect(xQ1, boxY, boxWidth, boxHeight);
 
-            // 4. Mediana
             var xMed = scaleX(median);
             ctx.strokeStyle = '#0284c7';
             ctx.lineWidth = 3;
@@ -2252,14 +2214,12 @@
             ctx.lineTo(xMed, boxY + boxHeight);
             ctx.stroke();
 
-            // 5. Media (+)
             var xMean = scaleX(mean);
             ctx.fillStyle = '#dc2626';
             ctx.font = 'bold 13px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('+', xMean, boxCenterY + 4);
 
-            // 6. Atípicos
             outliers.forEach(function(outVal) {
                 var xOut = scaleX(outVal);
                 ctx.fillStyle = '#ef4444';
@@ -2282,7 +2242,6 @@
             ctx.fillText('Q3: ' + formatES(q3, 0), xQ3, boxY + boxHeight + 14);
         }
 
-        
         function renderAppraisalTable() {
             var tbody=document.getElementById('avaluo-table-body');
             tbody.innerHTML='';
@@ -2343,9 +2302,8 @@
             }
         }
 
-
         function exportMatrixToCSV() {
-            var csv = "N;PU_UM_m2;Desv_Estandar;Desv_Media;Peirce;Chauvenet;Dixon;Rosner;Grubbs;Tukey;Puntaje_Z;Hampel\r\n";
+            var csv = "N;PU_UM_m2;Desv_Estandar;Desv_Media;Chauvenet;Rosner;Grubbs;Tukey;Puntaje_Z;Hampel\r\n";
             currentData.forEach(function(row, idx) {
                 if (!row.enabled) return;
                 var flags = criteriaResults.map(function(c) { return c.outliers.some(function(o) { return o.idx === idx; }) ? "OUTLIER" : "VALIDO"; });
@@ -2379,7 +2337,7 @@
 
     <section id="methodology-warning" style="margin:18px auto;max-width:1400px;padding:14px 18px;border:1px solid #f59e0b;border-left:5px solid #d97706;border-radius:10px;background:#fffbeb;color:#78350f;font:500 13px/1.55 Arial,sans-serif;">
       <strong>Nota metodológica:</strong> una observación señalada como atípica es una señal para investigar, no una autorización automática para excluirla.
-      Los métodos exploratorios no equivalen a pruebas formales. Peirce y Dixon quedan identificados como no calculados hasta disponer de parámetros/tablas críticas verificadas.
+      Los métodos exploratorios no equivalen a pruebas formales.
       El intervalo t se calcula sobre la muestra activa original; no corrige la incertidumbre inducida por la selección posterior de observaciones.
       La estimación resultante es un apoyo estadístico y no sustituye el análisis de comparabilidad ni el juicio profesional del valuador.
     </section>
